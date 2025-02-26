@@ -14,6 +14,6 @@ def login(login_data: LoginSchema, db: Session = Depends(get_db)):
     if not user or not verify_password(login_data.password, user.passwordhash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    token = create_access_token({"sub": user.email})
+    token = create_access_token({"sub": str(user.id)})
 
     return {"token": token, "user": {"id": user.id, "email": user.email, "role": user.role}}

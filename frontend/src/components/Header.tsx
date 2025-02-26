@@ -42,11 +42,11 @@ const Header = () => {
             <>
               <li><Link to="/create-project" className="hover:underline">Create Project</Link></li>
               <li><Link to="/manage-users" className="hover:underline">Manage Users</Link></li>
+              <li><Link to="/invite" className="hover:underline">Invite</Link></li>
             </>
           ) : null}
           {user?.role === "admin" && (
             <>
-              <li><Link to="/invite" className="hover:underline">Invite</Link></li>
               <li><Link to="/manage-options" className="hover:underline">Manage Options</Link></li>
             </>
           )}

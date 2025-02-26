@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models import User
 from database import engine, SessionLocal, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth  # Importing authentication routes
+from routers import auth, consumption  # Importing routes
 
 # Create the FastAPI instance
 app = FastAPI()
@@ -18,6 +18,7 @@ app.add_middleware(
 
 # Include the auth routes
 app.include_router(auth.router, prefix="/auth")
+app.include_router(consumption.router, prefix="/consumption")
 
 # Create the database tables (this will only run once when you start the app for the first time)
 Base.metadata.create_all(bind=engine)

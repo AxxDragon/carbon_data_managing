@@ -17,7 +17,7 @@ const LoginPage = () => {
         password,
       });
       auth.login(res.data);
-      navigate("/");
+      navigate("/consumption-list");
     } catch (err) {
       setError("Invalid credentials");
     }
