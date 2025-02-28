@@ -18,9 +18,35 @@ class ConsumptionSchema(BaseModel):
     activityType: str  # Resolved name
     fuelType: str  # Resolved name
     unit: str  # Resolved name
-    userFirstName: str  # Resolved User's first name
-    userLastName: str  # Resolved User's last name
-    company: Optional[str]  # Resolved Company name (Admins only, so Optional)
+    user_first_name: str  # Resolved User's first name
+    user_last_name: str  # Resolved User's last name
+    company: str  # Resolved Company name
 
     class Config:
         from_attributes = True
+        
+class ConsumptionSubmitSchema(BaseModel):
+    projectId: int
+    amount: float
+    startDate: date
+    endDate: date
+    reportDate: date
+    description: str
+    activityTypeId: int
+    fuelTypeId: int
+    unitId: int
+    userId: int
+
+
+class CompanySchema(BaseModel):
+    name: str
+
+class ActivityTypeSchema(BaseModel):
+    name: str
+
+class FuelTypeSchema(BaseModel):
+    name: str
+    averageCO2Emmission: float
+
+class UnitSchema(BaseModel):
+    name: str

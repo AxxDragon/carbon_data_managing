@@ -3,6 +3,7 @@ import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import ConsumptionList from "./pages/ConsumptionList";
+import ConsumptionForm from "./pages/ConsumptionForm";
 import Analyze from "./pages/Analyze";
 import InviteUser from "./pages/InviteUser";
 import ManageUsers from "./pages/ManageUsers";
@@ -13,7 +14,7 @@ import Layout from "./components/Layout";
 
 const AppRoutes = () => {
   const { user } = useAuth();
-  console.log("Routes updated! User role:", user?.role);
+  // console.log("Routes updated! User role:", user?.role);
   return (
     <Router>
       <Routes>
@@ -23,6 +24,8 @@ const AppRoutes = () => {
         <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>
           <Route index element={<Navigate to="consumption-list" />} />
           <Route path="consumption-list" element={<ConsumptionList />} />
+          <Route path="consumption-form" element={<ConsumptionForm />} />
+          <Route path="consumption-form/:id" element={<ConsumptionForm />} />
           <Route path="analyze" element={<Analyze />} />
           <Route path="*" element={<NotFound />} />
           {user?.role === "companyadmin" || user?.role === "admin" ? (
