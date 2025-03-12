@@ -7,7 +7,7 @@ import ConsumptionForm from "./pages/ConsumptionForm";
 import Analyze from "./pages/Analyze";
 import InviteUser from "./pages/InviteUser";
 import ManageUsers from "./pages/ManageUsers";
-import CreateProject from "./pages/CreateProject";
+import ManageProjects from "./pages/ManageProjects";
 import ManageOptions from "./pages/ManageOptions";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout"; 
@@ -30,7 +30,7 @@ const AppRoutes = () => {
           <Route path="*" element={<NotFound />} />
           {user?.role === "companyadmin" || user?.role === "admin" ? (
             <>
-              <Route path="create-project" element={<CreateProject />} />
+              <Route path="manage-projects" element={<ManageProjects />} />
               <Route path="manage-users" element={<ManageUsers />} />
               <Route path="invite" element={<InviteUser />} />
             </>

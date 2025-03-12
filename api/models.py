@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float
 from sqlalchemy.orm import relationship
 from database import Base
+from datetime import date
 
 # Company Model
 class Company(Base):
@@ -42,6 +43,14 @@ class Project(Base):
     users = relationship("User_Project", back_populates="project")
     consumptions = relationship("Consumption", back_populates="project")
 
+    @property
+    def status(self):
+        """Compute if the project is ongoing or completed."""
+        today = date.today()
+        if self.endDate is None or self.endDate >= today:
+            return "Ongoing"
+        return "Completed"
+
 # User_Project (Association Table for Many-to-Many User-Project Relationship)
 class User_Project(Base):
     __tablename__ = "User_Project"
@@ -68,7 +77,7 @@ class FuelType(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    averageCO2Emmission = Column(Float, nullable=False)
+    averageCO2Emission = Column(Float, nullable=False)
     
     consumptions = relationship("Consumption", back_populates="fuel_type")
 

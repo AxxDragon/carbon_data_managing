@@ -46,7 +46,46 @@ class ActivityTypeSchema(BaseModel):
 
 class FuelTypeSchema(BaseModel):
     name: str
-    averageCO2Emmission: float
+    averageCO2Emission: float
 
 class UnitSchema(BaseModel):
     name: str
+
+class ProjectSchema(BaseModel):
+    id: int
+    name: str
+    startDate: date
+    endDate: Optional[date] = None
+    status: str  # Computed field
+    company: str  # Resolved Company name
+
+    class Config:
+        from_attributes = True
+
+class ProjectSubmitSchema(BaseModel):
+    id: Optional[int] = None
+    name: str
+    startDate: date
+    endDate: Optional[date] = None
+    companyId: int  # Admins choose, companyadmins have fixed value
+
+class UserSchema(BaseModel):
+    id: int
+    firstName: str
+    lastName: str
+    email: str
+    role: str
+    companyId: int
+    company: str  # Resolved Company name
+
+    class Config:
+        from_attributes = True
+
+
+class UserSubmitSchema(BaseModel):
+    firstName: str
+    lastName: str
+    email: str
+    passwordhash: str  # Hashed before storing
+    role: str
+    companyId: int  # Admins assign, companyadmins have fixed value

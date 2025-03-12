@@ -40,7 +40,7 @@ const Header = () => {
           <li><Link to="/analyze" className="hover:underline">Analyze</Link></li>
           {user?.role === "companyadmin" || user?.role === "admin" ? (
             <>
-              <li><Link to="/create-project" className="hover:underline">Create Project</Link></li>
+              <li><Link to="/manage-projects" className="hover:underline">Manage Projects</Link></li>
               <li><Link to="/manage-users" className="hover:underline">Manage Users</Link></li>
               <li><Link to="/invite" className="hover:underline">Invite</Link></li>
             </>

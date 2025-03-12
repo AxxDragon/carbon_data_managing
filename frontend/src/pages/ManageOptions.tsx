@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import OptionForm from "./OptionForm";
+import { useCallback } from "react";
 
 const TABS = ["Companies", "Activity Types", "Fuel Types", "Units"];
 
 type OptionType = {
   id: number;
   name: string;
+  averageCO2Emission?: number;
 };
 
 const Options = () => {
@@ -15,23 +17,42 @@ const Options = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedOption, setSelectedOption] = useState<OptionType | undefined>(undefined);
 
-  useEffect(() => {
-    fetchOptions();
-  });
 
-  const fetchOptions = async () => {
+  const fetchOptions = useCallback(async () => {
     try {
-      const res = await axios.get(`/api/options?category=${activeTab}`);
-      setOptions(res.data);
+      let url = "";
+      switch (activeTab) {
+        case "Companies":
+          url = "http://localhost:8000/options/companies";
+          break;
+        case "Activity Types":
+          url = "http://localhost:8000/options/activity-types";
+          break;
+        case "Fuel Types":
+          url = "http://localhost:8000/options/fuel-types";
+          break;
+        case "Units":
+          url = "http://localhost:8000/options/units";
+          break;
+        default:
+          throw new Error("Invalid category");
+      }
+  
+      const response = await axios.get(url);
+      setOptions(response.data);
     } catch (error) {
       console.error("Error fetching options", error);
     }
-  };
+  }, [activeTab]);
+  
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      await axios.delete(`/api/options/${id}`);
+      await axios.delete(`http://localhost:8000/options/${activeTab.toLowerCase().replace(" ", "-")}/${id}`);
       fetchOptions();
     } catch (error) {
       console.error("Error deleting option", error);
@@ -46,7 +67,10 @@ const Options = () => {
           <button
             key={tab}
             className={`px-4 py-2 border ${tab === activeTab ? "bg-gray-300" : "bg-white"}`}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab);
+              setShowForm(false);  // Closes form when switching tabs
+            }}
           >
             {tab}
           </button>
@@ -65,6 +89,9 @@ const Options = () => {
         <thead>
           <tr>
             <th className="border px-4 py-2">Name</th>
+            {activeTab === "Fuel Types" && (
+              <th className="border p-2">Avg CO2 Emission</th>
+            )}
             <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
@@ -72,6 +99,9 @@ const Options = () => {
           {options.map((option) => (
             <tr key={option.id}>
               <td className="border px-4 py-2">{option.name}</td>
+              {activeTab === "Fuel Types" && (
+                <td className="border p-2">{option.averageCO2Emission}</td>
+              )}
               <td className="border px-4 py-2">
                 <button
                   className="mr-2 px-2 py-1 bg-yellow-500 text-white"
@@ -95,7 +125,7 @@ const Options = () => {
       </table>
       {showForm && (
         <OptionForm
-        category={activeTab as "companies" | "activity-types" | "fuel-types" | "units"}
+        category={activeTab as "Companies" | "Activity Types" | "Fuel Types" | "Units"}
         option={selectedOption}
         onSave={() => {
           setShowForm(false);

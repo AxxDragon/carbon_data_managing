@@ -8,7 +8,7 @@ interface Option {
 }
 
 interface Props {
-    category: "companies" | "activity-types" | "fuel-types" | "units";
+    category: "Companies" | "Activity Types" | "Fuel Types" | "Units";
     option?: Option;
     onSave: () => void;
     onCancel: () => void;
@@ -21,19 +21,25 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
     useEffect(() => {
         if (option) {
             setName(option.name);
-            if (category === "fuel-types") {
+            if (category === "Fuel Types") {
                 setAverageCO2Emission(option.averageCO2Emission || 0);
+            }
+        } else {
+            // Reset fields when switching to "Create New" mode
+            setName("");
+            if (category === "Fuel Types") {
+                setAverageCO2Emission(0);
             }
         }
     }, [option, category]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const endpoint = `/options/${category.toLowerCase().replace(" ", "-")}${option ? `/${option.id}` : ""}`;
+        const endpoint = `http://localhost:8000/options/${category.toLowerCase().replace(" ", "-")}${option ? `/${option.id}` : ""}`;
         const method = option ? "put" : "post";
 
         const data = { name };
-        if (category === "fuel-types") {
+        if (category === "Fuel Types") {
             (data as any).averageCO2Emission = averageCO2Emission;
         }
 
@@ -46,7 +52,7 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
             <label>Name:</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
 
-            {category === "fuel-types" && (
+            {category === "Fuel Types" && (
                 <>
                     <label>Average CO2 Emission (kg CO2/unit):</label>
                     <input
