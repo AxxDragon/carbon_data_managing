@@ -1,9 +1,9 @@
-from pydantic import BaseModel
-from datetime import date
-from typing import Optional
+from pydantic import BaseModel, EmailStr
+from datetime import date, datetime
+from typing import Optional, List
 
 class LoginSchema(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 class ConsumptionSchema(BaseModel):
@@ -57,6 +57,7 @@ class ProjectSchema(BaseModel):
     startDate: date
     endDate: Optional[date] = None
     status: str  # Computed field
+    companyId: int
     company: str  # Resolved Company name
 
     class Config:
@@ -73,19 +74,32 @@ class UserSchema(BaseModel):
     id: int
     firstName: str
     lastName: str
-    email: str
+    email: EmailStr
     role: str
     companyId: int
-    company: str  # Resolved Company name
+    company: Optional[str] = None  # Resolved Company name
+    projects: List[int] = []
 
     class Config:
         from_attributes = True
 
-
 class UserSubmitSchema(BaseModel):
     firstName: str
     lastName: str
-    email: str
+    email: EmailStr
     passwordhash: str  # Hashed before storing
     role: str
     companyId: int  # Admins assign, companyadmins have fixed value
+    projects: List[int] = []
+
+class InviteSchema(BaseModel):
+    id: int
+    email: EmailStr
+    firstName: str
+    lastName: str
+    role: str
+    companyId: int
+    createdAt: datetime
+
+    class Config:
+        from_attributes = True

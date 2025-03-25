@@ -25,6 +25,7 @@ def get_projects(db: Session = Depends(get_db), user: User = Depends(get_current
             startDate=proj.startDate,
             endDate=proj.endDate,
             status="Ongoing" if proj.endDate is None or proj.endDate >= date.today() else "Completed",
+            companyId=proj.companyId,
             company=companyName
         ) for proj, companyName in projects
     ]

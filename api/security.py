@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 import jwt  # Make sure PyJWT is installed: `pip install PyJWT`
+import secrets
 
 # Password hashing settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -51,3 +52,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
+# Function to generate a secure invite token
+def generate_invite_token() -> str:
+    """Generates a unique and secure invite token."""
+    return secrets.token_urlsafe(32)  # 32-byte secure random token, encoded as URL-safe base64

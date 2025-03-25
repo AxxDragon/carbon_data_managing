@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
+import uuid
 
 # Company Model
 class Company(Base):
@@ -12,6 +13,30 @@ class Company(Base):
     
     users = relationship("User", back_populates="company")
     projects = relationship("Project", back_populates="company")
+
+# Invite Model
+class Invite(Base):
+    __tablename__ = "Invite"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    role = Column(String, nullable=False)
+    companyId = Column(Integer, ForeignKey("Company.id"), nullable=False)
+    inviteToken = Column(String, unique=True, nullable=False)  # Secure token for setup
+    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))  # Now timezone-aware
+
+    company = relationship("Company")  # Link to company
+
+    def __init__(self, email, role, companyId):
+        self.email = email
+        self.role = role
+        self.companyId = companyId
+        self.inviteToken = str(uuid.uuid4())  # Generate secure token
+
+    @property
+    def is_expired(self):
+        """Check if the invite is expired (7-day limit)."""
+        return (datetime.now(timezone.utc) - self.createdAt) > timedelta(days=30)
 
 # User Model
 class User(Base):
