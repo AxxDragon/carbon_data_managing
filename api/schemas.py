@@ -16,6 +16,7 @@ class ConsumptionSchema(BaseModel):
     userId: int
     project: str  # Resolved name
     activityType: str  # Resolved name
+    fuelTypeId: int
     fuelType: str  # Resolved name
     unit: str  # Resolved name
     user_first_name: str  # Resolved User's first name
@@ -84,13 +85,8 @@ class UserSchema(BaseModel):
         from_attributes = True
 
 class UserSubmitSchema(BaseModel):
-    firstName: str
-    lastName: str
-    email: EmailStr
-    passwordhash: str  # Hashed before storing
-    role: str
-    companyId: int  # Admins assign, companyadmins have fixed value
-    projects: List[int] = []
+    inviteToken: str
+    password: str
 
 class InviteSchema(BaseModel):
     id: int
@@ -99,7 +95,15 @@ class InviteSchema(BaseModel):
     lastName: str
     role: str
     companyId: int
+    inviteToken: str
     createdAt: datetime
 
     class Config:
         from_attributes = True
+
+class InviteSubmitSchema(BaseModel):
+    email: EmailStr
+    firstName: str
+    lastName: str
+    role: str
+    companyId: int

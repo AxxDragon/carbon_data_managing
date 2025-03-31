@@ -11,16 +11,19 @@ import ManageProjects from "./pages/ManageProjects";
 import ManageOptions from "./pages/ManageOptions";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout"; 
+import CompleteAccountSetup from "./pages/CompleteAccountSetup"; // Add this import
 
 const AppRoutes = () => {
   const { user } = useAuth();
-  // console.log("Routes updated! User role:", user?.role);
   return (
     <Router>
       <Routes>
-        {/* Redirect unauthenticated users to login */}
+        {/* Routes for everyone (not logged in yet) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/complete-account-setup/:inviteToken" element={<CompleteAccountSetup />} /> {/* Account setup route */}
+
+        {/* Routes requiring authentication */}
         <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>
           <Route index element={<Navigate to="consumption-list" />} />
           <Route path="consumption-list" element={<ConsumptionList />} />
@@ -28,6 +31,8 @@ const AppRoutes = () => {
           <Route path="consumption-form/:id" element={<ConsumptionForm />} />
           <Route path="analyze" element={<Analyze />} />
           <Route path="*" element={<NotFound />} />
+          
+          {/* Admin and companyadmin restricted routes */}
           {user?.role === "companyadmin" || user?.role === "admin" ? (
             <>
               <Route path="manage-projects" element={<ManageProjects />} />
@@ -35,10 +40,10 @@ const AppRoutes = () => {
               <Route path="invite" element={<InviteUser />} />
             </>
           ) : null}
+
+          {/* Only admins can access manage-options */}
           {user?.role === "admin" && (
-            <>
-              <Route path="manage-options" element={<ManageOptions />} />
-            </>
+            <Route path="manage-options" element={<ManageOptions />} />
           )}
         </Route>
       </Routes>

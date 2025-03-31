@@ -20,6 +20,7 @@ def get_consumptions(db: Session = Depends(get_db), current_user=Depends(get_cur
             Consumption.reportDate,
             Consumption.description,
             Consumption.userId,
+            Consumption.fuelTypeId,
             Project.name.label("project"),
             Project.companyId,
             ActivityType.name.label("activityType"),

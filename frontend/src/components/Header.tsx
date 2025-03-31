@@ -10,7 +10,9 @@ const Header = () => {
     <header className="bg-gray-900 text-white p-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* Website Name */}
-        <h1 className="text-xl font-bold">Carbon Data Manager</h1>
+        <h1 className="text-xl font-bold">CARMA</h1>
+        <p className="text">Carbon emission data</p>
+        <p className="text">Managing tool</p>
 
         {/* User Dropdown */}
         <div className="relative">

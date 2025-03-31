@@ -3,9 +3,17 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 interface Invite {
+  id?: number;
   email: string;
+  firstName: string;
+  lastName: string;
   role: string;
   companyId?: number;
+}
+
+interface Company {
+  id: number;
+  name: string;
 }
 
 interface InviteFormProps {
@@ -17,31 +25,29 @@ interface InviteFormProps {
 const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCancel }) => {
   const { user } = useAuth();
   const [email, setEmail] = useState(invite?.email || "");
+  const [firstName, setFirstName] = useState(invite?.firstName || "");
+  const [lastName, setLastName] = useState(invite?.lastName || "");
   const [role, setRole] = useState(invite?.role || "user");
   const [companyId, setCompanyId] = useState<number | undefined>(invite?.companyId);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch companyId only if it's missing
   useEffect(() => {
     setEmail(invite?.email || "");
+    setFirstName(invite?.firstName || "");
+    setLastName(invite?.lastName || "");
     setRole(invite?.role || "user");
+    setCompanyId(invite?.companyId);
 
-    if (invite?.companyId) {
-      setCompanyId(invite.companyId);
-    } else if (user?.role === "companyadmin") {
-      // Fetch companyId for company admins if not available
-      axios.get("http://localhost:8000/users/me", {
+    if (user?.role === "admin") {
+      axios.get("http://localhost:8000/options/companies", {
         headers: { Authorization: `Bearer ${user?.token}` },
       })
-        .then(response => {
-          setCompanyId(response.data.companyId);
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error);
-        });
+      .then(response => setCompanies(response.data))
+      .catch(error => console.error("Error fetching companies", error));
     }
-  }, [invite, user?.role, user?.token]); // Ensure dependencies are correctly tracked
+  }, [invite, user?.role, user?.token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,14 +55,21 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
     setError("");
 
     try {
-      await axios.post(
-        "http://localhost:8000/invites/",
-        { email, role, companyId },
-        { headers: { Authorization: `Bearer ${user?.token}` } }
-      );
-
+        if (invite) {
+          // If it's an edit, delete the old invite first
+          await axios.delete(`http://localhost:8000/invites/${invite.id}`, {
+            headers: { Authorization: `Bearer ${user?.token}` },
+          });
+        }
+        await axios.post(
+            "http://localhost:8000/invites/",
+            { email, firstName, lastName, role, companyId },
+            { headers: { Authorization: `Bearer ${user?.token}` } }
+        );
       onInviteSuccess();
-      setEmail(""); // Clear input after successful invite
+      setEmail("");
+      setFirstName("");
+      setLastName("");
     } catch (err) {
       setError("Failed to send invitation. Please try again.");
     }
@@ -66,6 +79,22 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
 
   return (
     <form onSubmit={handleSubmit}>
+      <label>First Name:</label>
+      <input
+        type="text"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        required
+      />
+
+      <label>Last Name:</label>
+      <input
+        type="text"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        required
+      />
+
       <label>Email:</label>
       <input
         type="email"
@@ -82,12 +111,17 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
             <option value="companyadmin">Company Admin</option>
           </select>
 
-          <label>Company ID:</label>
-          <input
-            type="number"
-            value={companyId ?? 0} // Ensure it's a valid number
+          <label>Company:</label>
+          <select
+            value={companyId ?? ""}
             onChange={(e) => setCompanyId(Number(e.target.value))}
-          />
+            required
+          >
+            <option value="">Select a company</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>{company.name}</option>
+            ))}
+          </select>
         </>
       )}
 

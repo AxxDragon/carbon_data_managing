@@ -6,16 +6,20 @@ import InviteForm from "./InviteForm";
 interface Invite {
   id: number;
   email: string;
+  firstName: string;
+  lastName: string;
   role: string;
   companyId: number;
   createdAt: string;
 }
 
-const InviteUsers = () => {
+const InviteUser = () => {
   const { user } = useAuth();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<Invite | undefined>(undefined);
+  const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
+
 
   const fetchInvites = useCallback(async () => {
     try {
@@ -30,7 +34,20 @@ const InviteUsers = () => {
 
   useEffect(() => {
     fetchInvites();
-  }, [fetchInvites]);
+  
+    // Fetch company names
+    axios.get("http://localhost:8000/options/companies", {
+      headers: { Authorization: `Bearer ${user?.token}` },
+    })
+    .then(response => {
+      setCompanies(response.data);
+    })
+    .catch(error => {
+      console.error("Error fetching company names", error);
+    });
+  
+  }, [fetchInvites, user?.token]);
+  
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this invite?")) return;
@@ -66,6 +83,7 @@ const InviteUsers = () => {
       <table>
         <thead>
           <tr>
+            <th>Name</th>
             <th>Email</th>
             {user?.role === "admin" && <th>Role</th>}
             {user?.role === "admin" && <th>Company</th>}
@@ -76,9 +94,14 @@ const InviteUsers = () => {
         <tbody>
           {invites.map((invite) => (
             <tr key={invite.id}>
+              <td>{invite.firstName} {invite.lastName}</td>
               <td>{invite.email}</td>
               {user?.role === "admin" && <td>{invite.role}</td>}
-              {user?.role === "admin" && <td>{invite.companyId}</td>}
+              {user?.role === "admin" && (
+                <td>
+                  {companies.find((c) => c.id === invite.companyId)?.name || "Unknown"}
+                </td>
+              )}
               <td>{new Date(invite.createdAt).toLocaleString()}</td>
               <td>
                 <button onClick={() => { setSelectedInvite(invite); setShowForm(true); }}>
@@ -102,4 +125,4 @@ const InviteUsers = () => {
   );
 };
 
-export default InviteUsers;
+export default InviteUser;

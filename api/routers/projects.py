@@ -56,8 +56,9 @@ def create_project(project_data: ProjectSubmitSchema, db: Session = Depends(get_
         id=new_project.id,
         name=new_project.name,
         startDate=new_project.startDate,
-        endDate=new_project.endDate,
+        endDate=end_date,
         status="Ongoing" if new_project.endDate is None or new_project.endDate >= date.today() else "Completed",
+        companyId=new_project.companyId,
         company=db.query(Company.name).filter(Company.id == new_project.companyId).scalar()
     )
 
@@ -90,6 +91,7 @@ def update_project(
         startDate=project.startDate,
         endDate=project.endDate,
         status="Ongoing" if project.endDate is None or project.endDate >= date.today() else "Completed",
+        companyId=project.companyId,
         company=db.query(Company.name).filter(Company.id == project.companyId).scalar()
     )
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Invite, User
-from schemas import InviteSchema
+from schemas import InviteSchema, InviteSubmitSchema
 from security import generate_invite_token, get_current_user
 from datetime import datetime, timedelta
 from utils.email_utils import send_invite_email  # Utility for sending emails
@@ -11,10 +11,11 @@ router = APIRouter()
 
 # Constants for expiration
 INVITE_EXPIRATION_DAYS = 30
+CONFERMATION_LINK = "http://localhost:3000/complete-account-setup/"
 
 @router.post("/", response_model=InviteSchema)
 def create_invite(
-    invite_data: InviteSchema,
+    invite_data: InviteSubmitSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -35,10 +36,12 @@ def create_invite(
     # Create new invite
     invite = Invite(
         email=invite_data.email,
+        firstName=invite_data.firstName,
+        lastName=invite_data.lastName,
         role=invite_data.role,
         companyId=invite_data.companyId,
         inviteToken=generate_invite_token(),
-        createdAt=datetime.datetime.now(datetime.UTC),
+        createdAt=datetime.now(),
     )
 
     db.add(invite)
@@ -46,17 +49,30 @@ def create_invite(
     db.refresh(invite)
 
     # Send email with invite link
-    send_invite_email(invite.email, f"http://your-app.com/register?token={invite.inviteToken}")
+    send_invite_email(invite.email, invite.firstName, invite.lastName, CONFERMATION_LINK + invite.inviteToken)
 
     return invite
 
+@router.get("/token/{invite_token}")
+def get_invite_by_token(invite_token: str, db: Session = Depends(get_db)):
+    # Delete expired invites before processing
+    now = datetime.now()
+    db.query(Invite).filter(Invite.createdAt < now - timedelta(days=INVITE_EXPIRATION_DAYS)).delete()
+    db.commit()
+
+    # Fetch the invite with the given token
+    invite = db.query(Invite).filter_by(inviteToken=invite_token).first()
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invite not found or expired")
+
+    return invite
 
 @router.get("/", response_model=list[InviteSchema])
 def get_pending_invites(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """List all pending invites. Companyadmins only see invites from their own company."""
     
     # First, delete expired invites
-    expiration_threshold = datetime.now(datetime.UTC) - timedelta(days=INVITE_EXPIRATION_DAYS)
+    expiration_threshold = datetime.now() - timedelta(days=INVITE_EXPIRATION_DAYS)
     db.query(Invite).filter(Invite.createdAt < expiration_threshold).delete()
     db.commit()
     
@@ -68,7 +84,6 @@ def get_pending_invites(db: Session = Depends(get_db), current_user: User = Depe
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return invites
-
 
 @router.delete("/{invite_id}")
 def delete_invite(invite_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -98,10 +113,10 @@ def resend_invite(invite_id: int, db: Session = Depends(get_db), user: User = De
         raise HTTPException(status_code=403, detail="Not authorized")
 
     invite.inviteToken = generate_invite_token()
-    invite.createdAt = datetime.datetime.now(datetime.UTC)
+    invite.createdAt = datetime.now()
 
     db.commit()
 
-    send_invite_email(invite.email, invite.inviteToken)  # Resend email
+    send_invite_email(invite.email, invite.firstName, invite.lastName, CONFERMATION_LINK + invite.inviteToken)
 
     return {"detail": "Invite resent successfully"}

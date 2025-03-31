@@ -20,18 +20,14 @@ class Invite(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
+    firstName = Column(String, nullable=False)
+    lastName = Column(String, nullable=False)
     role = Column(String, nullable=False)
     companyId = Column(Integer, ForeignKey("Company.id"), nullable=False)
     inviteToken = Column(String, unique=True, nullable=False)  # Secure token for setup
     createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))  # Now timezone-aware
 
     company = relationship("Company")  # Link to company
-
-    def __init__(self, email, role, companyId):
-        self.email = email
-        self.role = role
-        self.companyId = companyId
-        self.inviteToken = str(uuid.uuid4())  # Generate secure token
 
     @property
     def is_expired(self):

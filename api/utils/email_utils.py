@@ -6,25 +6,27 @@ SMTP_SERVER = "localhost"
 SMTP_PORT = 1025  # MailHog's default SMTP port
 
 SENDER_EMAIL = "no-reply@example.com"
-SENDER_NAME = "Your App Name"
+SENDER_NAME = "CARMA"
 
-def send_invite_email(recipient_email: str, invite_link: str):
+def send_invite_email(recipient_email: str, first_name: str, last_name: str, invite_link: str):
     """
     Sends an invitation email with a unique registration link.
     
     :param recipient_email: The email of the invitee.
+    :param first_name: First name of the invitee.
+    :param last_name: Last name of the invitee.
     :param invite_link: The unique invitation link.
     """
     try:
         # Create email message
         msg = EmailMessage()
-        msg["Subject"] = "You're Invited to Join CARMA"
+        msg["Subject"] = "You're invited to use CARMA"
         msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
         msg["To"] = recipient_email
         msg.set_content(f"""
-        Hello,
+        Hello {first_name} {last_name},
 
-        You have been invited to join CARMA (carbon emission data managing tool). Click the link below to complete your registration:
+        You have been invited to use CARMA (carbon emission data managing tool). Click the link below to complete your registration:
 
         {invite_link}
 

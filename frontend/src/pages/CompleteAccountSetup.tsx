@@ -15,7 +15,7 @@ const CompleteAccountSetup = () => {
   useEffect(() => {
     const fetchInviteDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/invites/${inviteToken}`);
+        const response = await axios.get(`http://localhost:8000/invites/token/${inviteToken}`);
         const inviteCreatedAt = new Date(response.data.createdAt);
         const expirationDate = new Date(inviteCreatedAt);
         expirationDate.setDate(expirationDate.getDate() + 30); // Expire after 30 days
@@ -61,12 +61,17 @@ const CompleteAccountSetup = () => {
       alert("Account setup successful!");
       navigate("/login");
     } catch (err) {
-      setError("Failed to complete account setup. Try again.");
+      setError("Failed to complete account setup. Please try again.");
     }
     setLoading(false);
   };
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error) return (
+    <div>
+    <p style={{ color: "red" }}>{error}</p>
+    <button type="button" onClick={() => navigate(0)}>Go Back and Retry</button>
+    </div>
+  );
   if (!userDetails) return <p>Loading...</p>;
 
   return (

@@ -82,8 +82,8 @@ def create_user(confirm_data: UserSubmitSchema, db: Session = Depends(get_db)):
 
     # Create the new user based on the invite details
     new_user = User(
-        firstName=confirm_data.firstName,
-        lastName=confirm_data.lastName,
+        firstName=invite.firstName,
+        lastName=invite.lastName,
         email=invite.email,  # Use the email from the invite (pre-validated)
         passwordhash=hash_password(confirm_data.password),  # Hash the password
         role=invite.role,  # Role is already set in the invite
