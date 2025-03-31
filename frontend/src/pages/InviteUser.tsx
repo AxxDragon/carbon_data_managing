@@ -13,13 +13,17 @@ interface Invite {
   createdAt: string;
 }
 
+const itemsPerPage = 10;
+
 const InviteUser = () => {
   const { user } = useAuth();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<Invite | undefined>(undefined);
   const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Invite | "company" | null; direction: "asc" | "desc" }>({ key: null, direction: "asc" });
 
   const fetchInvites = useCallback(async () => {
     try {
@@ -35,7 +39,6 @@ const InviteUser = () => {
   useEffect(() => {
     fetchInvites();
   
-    // Fetch company names
     axios.get("http://localhost:8000/options/companies", {
       headers: { Authorization: `Bearer ${user?.token}` },
     })
@@ -47,7 +50,6 @@ const InviteUser = () => {
     });
   
   }, [fetchInvites, user?.token]);
-  
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this invite?")) return;
@@ -74,46 +76,122 @@ const InviteUser = () => {
     }
   };
 
+  // 🔍 Search filter
+  const filteredInvites = invites.filter((invite) =>
+    `${invite.firstName} ${invite.lastName} ${invite.email}`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 🔀 Sorting logic
+  const sortedInvites = [...filteredInvites].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+  
+    let valueA: any, valueB: any;
+  
+    if (sortConfig.key === "company") {
+      valueA = companies.find((c) => c.id === a.companyId)?.name || "";
+      valueB = companies.find((c) => c.id === b.companyId)?.name || "";
+    } else {
+      valueA = a[sortConfig.key] ?? "";
+      valueB = b[sortConfig.key] ?? "";
+    }
+  
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return sortConfig.direction === "asc"
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+  
+    return 0;
+  });
+
+  // 📄 Pagination logic
+  const paginatedInvites = sortedInvites.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // 🔼 Toggle sorting
+  const toggleSort = (key: keyof Invite | "company") => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const getArrowIndicator = (key: keyof Invite | "company") => {
+    return sortConfig.key === key ? (sortConfig.direction === "asc" ? "▲" : "▼") : "";
+  };
+
   return (
-    <div>
-      <h2>Manage Invites</h2>
-      <button onClick={() => { setSelectedInvite(undefined); setShowForm(true); }}>
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Manage Invites</h2>
+      <input
+        type="text"
+        placeholder="Search invites"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 p-2 border w-full"
+      />
+      <button
+        className="mb-4 px-4 py-2 bg-blue-500 text-white"
+        onClick={() => { setSelectedInvite(undefined); setShowForm(true); }}
+      >
         Create Invite
       </button>
-      <table>
+      <table className="w-full border-collapse border">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            {user?.role === "admin" && <th>Role</th>}
-            {user?.role === "admin" && <th>Company</th>}
-            <th>Created</th>
-            <th>Actions</th>
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("firstName")}>Name {getArrowIndicator("firstName")}</th>
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("email")}>Email {getArrowIndicator("email")}</th>
+            {user?.role === "admin" && <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("role")}>Role {getArrowIndicator("role")}</th>}
+            {user?.role === "admin" && <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("company")}>Company {getArrowIndicator("company")}</th>}
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("createdAt")}>Created {getArrowIndicator("createdAt")}</th>
+            <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {invites.map((invite) => (
+          {paginatedInvites.map((invite) => (
             <tr key={invite.id}>
-              <td>{invite.firstName} {invite.lastName}</td>
-              <td>{invite.email}</td>
-              {user?.role === "admin" && <td>{invite.role}</td>}
+              <td className="border px-4 py-2">{invite.firstName} {invite.lastName}</td>
+              <td className="border px-4 py-2">{invite.email}</td>
+              {user?.role === "admin" && <td className="border px-4 py-2">{invite.role}</td>}
               {user?.role === "admin" && (
-                <td>
+                <td className="border px-4 py-2">
                   {companies.find((c) => c.id === invite.companyId)?.name || "Unknown"}
                 </td>
               )}
-              <td>{new Date(invite.createdAt).toLocaleString()}</td>
-              <td>
-                <button onClick={() => { setSelectedInvite(invite); setShowForm(true); }}>
+              <td className="border px-4 py-2">{new Date(invite.createdAt).toLocaleString()}</td>
+              <td className="border px-4 py-2">
+                <button
+                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
+                  onClick={() => { setSelectedInvite(invite); setShowForm(true); }}
+                >
                   Edit
                 </button>
-                <button onClick={() => handleResend(invite.id)}>Resend</button>
-                <button onClick={() => handleDelete(invite.id)}>Delete</button>
+                <button className="mr-2 px-2 py-1 bg-green-500 text-white" onClick={() => handleResend(invite.id)}>
+                  Resend
+                </button>
+                <button className="px-2 py-1 bg-red-500 text-white" onClick={() => handleDelete(invite.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div className="mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+          className="px-4 py-2 bg-gray-300 mr-2"
+        >
+          Previous
+        </button>
+        <button
+          disabled={currentPage * itemsPerPage >= sortedInvites.length}
+          onClick={() => setCurrentPage(currentPage + 1)}
+          className="px-4 py-2 bg-gray-300"
+        >
+          Next
+        </button>
+      </div>
       {showForm && (
         <InviteForm
           invite={selectedInvite}

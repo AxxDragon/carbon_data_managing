@@ -10,25 +10,29 @@ type Project = {
   endDate?: string | null;
   status: string;
   company: string;
-  companyId: number; // Admins can edit this, companyadmins have it fixed
+  companyId: number;
 };
+
+const itemsPerPage = 10;
 
 const ManageProjects = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Project | null; direction: "asc" | "desc" }>({ key: null, direction: "asc" });
 
   const fetchProjects = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:8000/projects", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
-      
-      // Ensure endDate is always correctly handled as null when necessary
+
       const formattedProjects = response.data.map((p: Project) => ({
         ...p,
-        endDate: p.endDate || null, // Normalize `null` endDate
+        endDate: p.endDate || null,
       }));
 
       setProjects(formattedProjects);
@@ -36,7 +40,7 @@ const ManageProjects = () => {
       console.error("Error fetching projects", error);
     }
   }, [user?.token]);
-  
+
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
@@ -49,38 +53,124 @@ const ManageProjects = () => {
     fetchProjects();
   };
 
+  // 🔍 Search filter
+  const filteredProjects = projects.filter((p) =>
+    `${p.name} ${p.company} ${p.status}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+  // 🔀 Sorting logic
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const valueA = a[sortConfig.key] ?? "";
+    const valueB = b[sortConfig.key] ?? "";
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return sortConfig.direction === "asc"
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+
+    return 0;
+  });
+
+  // 📄 Pagination logic
+  const paginatedProjects = sortedProjects.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // 🔼 Toggle sorting
+  const toggleSort = (key: keyof Project) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
   return (
-    <div>
-      <h2>Manage Projects</h2>
-      <button onClick={() => { setSelectedProject(undefined); setShowForm(true); }}>Create Project</button>
-      <table>
+    <div className="p-4">
+      <h2 className="text-2xl mb-4">Manage Projects</h2>
+      <input
+        type="text"
+        placeholder="Search projects"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 p-2 border w-full"
+      />
+      <button
+        className="mb-4 px-4 py-2 bg-blue-500 text-white"
+        onClick={() => { setSelectedProject(undefined); setShowForm(true); }}
+      >
+        Create Project
+      </button>
+      <table className="w-full border-collapse border">
         <thead>
           <tr>
-            {user?.role === "admin" && <th>Company</th>}
-            <th>Name</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Status</th>
-            <th>Actions</th>
+            {user?.role === "admin" && (
+              <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("company")}>
+                Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+            )}
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("name")}>
+              Name {sortConfig.key === "name" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+            </th>
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("startDate")}>
+              Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+            </th>
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("endDate")}>
+              End Date {sortConfig.key === "endDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+            </th>
+            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("status")}>
+              Status {sortConfig.key === "status" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+            </th>
+            <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {projects.map((p) => (
+          {paginatedProjects.map((p) => (
             <tr key={p.id}>
-              {user?.role === "admin" && <td>{p.company}</td>}
-              <td>{p.name}</td>
-              <td>{p.startDate}</td>
-              <td>{p.endDate || "N/A"}</td>
-              <td>{p.status}</td>
-              <td>
-                <button onClick={() => { setSelectedProject(p); setShowForm(true); }}>Edit</button>
-                <button onClick={() => handleDelete(p.id)}>Delete</button>
+              {user?.role === "admin" && <td className="border px-4 py-2">{p.company}</td>}
+              <td className="border px-4 py-2">{p.name}</td>
+              <td className="border px-4 py-2">{p.startDate}</td>
+              <td className="border px-4 py-2">{p.endDate || "N/A"}</td>
+              <td className="border px-4 py-2">{p.status}</td>
+              <td className="border px-4 py-2">
+                <button
+                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
+                  onClick={() => { setSelectedProject(p); setShowForm(true); }}
+                >
+                  Edit
+                </button>
+                <button className="px-2 py-1 bg-red-500 text-white" onClick={() => handleDelete(p.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {showForm && <ProjectForm project={selectedProject} onSave={() => { setShowForm(false); fetchProjects(); }} onCancel={() => setShowForm(false)} />}
+      <div className="mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+          className="px-4 py-2 bg-gray-300 mr-2"
+        >
+          Previous
+        </button>
+        <button
+          disabled={currentPage * itemsPerPage >= sortedProjects.length}
+          onClick={() => setCurrentPage(currentPage + 1)}
+          className="px-4 py-2 bg-gray-300"
+        >
+          Next
+        </button>
+      </div>
+      {showForm && (
+        <ProjectForm
+          project={selectedProject}
+          onSave={() => { setShowForm(false); fetchProjects(); }}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
     </div>
   );
 };
