@@ -16,8 +16,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "42"
 REFRESH_SECRET_KEY = "23"  # Different key for refresh tokens!
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1#5  # Shorter expiry for security
-REFRESH_TOKEN_EXPIRE_DAYS = 2#7  # Refresh token expiry
+ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Shorter expiry for security
+REFRESH_TOKEN_EXPIRE_DAYS = 7  # Refresh token expiry
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
@@ -31,7 +31,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 def create_refresh_token(data: dict, expires_delta: timedelta = None):
     """Generates a long-lived refresh token."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=REFRESH_TOKEN_EXPIRE_DAYS))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
 
