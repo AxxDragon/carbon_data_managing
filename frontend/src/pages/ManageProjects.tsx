@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api";
 import ProjectForm from "./ProjectForm";
 
 type Project = {
@@ -26,15 +26,13 @@ const ManageProjects = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:8000/projects", {
+      const response = await api.get("/projects", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
-
       const formattedProjects = response.data.map((p: Project) => ({
         ...p,
         endDate: p.endDate || null,
       }));
-
       setProjects(formattedProjects);
     } catch (error) {
       console.error("Error fetching projects", error);
@@ -47,10 +45,14 @@ const ManageProjects = () => {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this project?")) return;
-    await axios.delete(`http://localhost:8000/projects/${id}`, {
-      headers: { Authorization: `Bearer ${user?.token}` },
-    });
-    fetchProjects();
+    try {
+      await api.delete(`/projects/${id}`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error deleting project", error);
+    }
   };
 
   // 🔍 Search filter
@@ -87,14 +89,14 @@ const ManageProjects = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="flex flex-col items-center mt-10 p-4">
       <h2 className="text-2xl mb-4">Manage Projects</h2>
       <input
         type="text"
         placeholder="Search projects"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border w-full"
+        className="border p-2 mb-4 w-full"
       />
       <button
         className="mb-4 px-4 py-2 bg-blue-500 text-white"
@@ -140,7 +142,10 @@ const ManageProjects = () => {
                 >
                   Edit
                 </button>
-                <button className="px-2 py-1 bg-red-500 text-white" onClick={() => handleDelete(p.id)}>
+                <button
+                  className="px-2 py-1 bg-red-500 text-white"
+                  onClick={() => handleDelete(p.id)}
+                >
                   Delete
                 </button>
               </td>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 
 const ConsumptionForm = () => {
   const { user } = useAuth();
@@ -31,19 +31,19 @@ const ConsumptionForm = () => {
 
   // Fetch dropdown options from API
   useEffect(() => {
-    axios.get("http://localhost:8000/consumption/projects", { headers: { Authorization: `Bearer ${user?.token}` } })
+    api.get("consumption/projects", { headers: { Authorization: `Bearer ${user?.token}` } })
       .then(res => setProjects(res.data))
       .catch(err => console.error("Error fetching projects:", err));
 
-    axios.get("http://localhost:8000/consumption/activity-types", { headers: { Authorization: `Bearer ${user?.token}` } })
+    api.get("options/activity-types", { headers: { Authorization: `Bearer ${user?.token}` } })
       .then(res => setActivityTypes(res.data))
       .catch(err => console.error("Error fetching activity types:", err));
 
-    axios.get("http://localhost:8000/consumption/fuel-types", { headers: { Authorization: `Bearer ${user?.token}` } })
+    api.get("options/fuel-types", { headers: { Authorization: `Bearer ${user?.token}` } })
       .then(res => setFuelTypes(res.data))
       .catch(err => console.error("Error fetching fuel types:", err));
 
-    axios.get("http://localhost:8000/consumption/units", { headers: { Authorization: `Bearer ${user?.token}` } })
+    api.get("options/units", { headers: { Authorization: `Bearer ${user?.token}` } })
       .then(res => setUnits(res.data))
       .catch(err => console.error("Error fetching units:", err));
   }, [user]);
@@ -51,8 +51,8 @@ const ConsumptionForm = () => {
   // Fetch existing data if editing
   useEffect(() => {
     if (isEditing) {
-      axios
-        .get(`http://localhost:8000/consumption/${id}`, {
+      api
+        .get(`consumption/${id}`, {
           headers: { Authorization: `Bearer ${user?.token}` },
         })
         .then((res) => setFormData(res.data))
@@ -84,10 +84,10 @@ const ConsumptionForm = () => {
     };
 
     const request = isEditing
-      ? axios.put(`http://localhost:8000/consumption/${id}`, submitData, {
+      ? api.put(`consumption/${id}`, submitData, {
             headers: { Authorization: `Bearer ${user?.token}` },
         })
-      : axios.post("http://localhost:8000/consumption", submitData, {
+      : api.post("consumption", submitData, {
             headers: { Authorization: `Bearer ${user?.token}` },
         });
 

@@ -61,24 +61,6 @@ def get_projects(db: Session = Depends(get_db), current_user: User = Depends(get
     return [{"id": p.id, "name": p.name} for p in projects]
 
 
-@router.get("/activity-types")
-def get_activity_types(db: Session = Depends(get_db)):
-    """Fetch all activity types."""
-    return [{"id": a.id, "name": a.name} for a in db.query(ActivityType).all()]
-
-
-@router.get("/fuel-types")
-def get_fuel_types(db: Session = Depends(get_db)):
-    """Fetch all fuel types."""
-    return [{"id": f.id, "name": f.name} for f in db.query(FuelType).all()]
-
-
-@router.get("/units")
-def get_units(db: Session = Depends(get_db)):
-    """Fetch all units."""
-    return [{"id": u.id, "name": u.name} for u in db.query(Unit).all()]
-
-
 @router.get("/{id}")
 def get_consumption(id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     consumption = (

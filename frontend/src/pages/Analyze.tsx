@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import {
   LineChart,
@@ -67,20 +67,20 @@ const Analyze = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const projectRes = await axios.get<Project[]>("http://localhost:8000/projects", {
+        const projectRes = await api.get<Project[]>("projects", {
           headers: { Authorization: `Bearer ${user?.token}` },
         });
         setProjects(projectRes.data);
 
         if (user?.role === "admin") {
-          const companyRes = await axios.get<Company[]>("http://localhost:8000/options/companies", {
+          const companyRes = await api.get<Company[]>("options/companies", {
             headers: { Authorization: `Bearer ${user?.token}` },
           });
           setCompanies(companyRes.data);
         }
 
-        const fuelTypesRes = await axios.get<{ id: number; averageCO2Emission: number }[]>(
-          "http://localhost:8000/options/fuel-types",
+        const fuelTypesRes = await api.get<{ id: number; averageCO2Emission: number }[]>(
+          "options/fuel-types",
           { headers: { Authorization: `Bearer ${user?.token}` } }
         );
 
@@ -183,7 +183,7 @@ const Analyze = () => {
     if (selectedItem) {
       const fetchConsumptionData = async () => {
         try {
-          const res = await axios.get<ConsumptionEntry[]>("http://localhost:8000/consumption", {
+          const res = await api.get<ConsumptionEntry[]>("consumption", {
             headers: { Authorization: `Bearer ${user?.token}` },
           });
 

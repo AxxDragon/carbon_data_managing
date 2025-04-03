@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 
 const CompleteAccountSetup = () => {
   const { inviteToken } = useParams();
@@ -15,7 +15,7 @@ const CompleteAccountSetup = () => {
   useEffect(() => {
     const fetchInviteDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/invites/token/${inviteToken}`);
+        const response = await api.get(`invites/token/${inviteToken}`);
         const inviteCreatedAt = new Date(response.data.createdAt);
         const expirationDate = new Date(inviteCreatedAt);
         expirationDate.setDate(expirationDate.getDate() + 30); // Expire after 30 days
@@ -54,7 +54,7 @@ const CompleteAccountSetup = () => {
     }
 
     try {
-      await axios.post("http://localhost:8000/users/", {
+      await api.post("users/", {
         inviteToken,
         password,
       });

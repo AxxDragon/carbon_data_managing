@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api";  // Corrected import
 
 interface ProjectSubmit {
     id?: number;
@@ -20,7 +20,7 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     const { user } = useAuth();
     const [name, setName] = useState("");
     const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState<string | null>("");
+    const [endDate, setEndDate] = useState<string | null>(""); 
     const [companyId, setCompanyId] = useState<number | "">(""); // Start empty
     const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
     const [companyAdminCompanyId, setCompanyAdminCompanyId] = useState<number | null>(null); // Stores API-fetched companyId
@@ -28,7 +28,7 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     // Fetch companyId for companyadmins
     useEffect(() => {
         if (user?.role === "companyadmin") {
-            axios.get("http://localhost:8000/users/me", {
+            api.get("/users/me", {
                 headers: { Authorization: `Bearer ${user?.token}` }
             })
             .then((res) => setCompanyAdminCompanyId(res.data.companyId))
@@ -39,7 +39,7 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     // Fetch companies (only for admins)
     useEffect(() => {
         if (user?.role === "admin") {
-            axios.get("http://localhost:8000/options/companies").then((res) => {
+            api.get("/options/companies").then((res) => { // No need to specify full URL
                 setCompanies(res.data);
             });
         }
@@ -70,7 +70,7 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const method = project ? "put" : "post";
-        const url = project ? `http://localhost:8000/projects/${project.id}` : "http://localhost:8000/projects";
+        const url = project ? `/projects/${project.id}` : "/projects"; // No need to specify full URL
     
         // Ensure endDate is `null` if empty
         const formattedEndDate = endDate && endDate.trim() !== "" ? endDate : null;
@@ -82,7 +82,7 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
         };
     
         try {
-            await axios[method](url, data, {
+            await api[method](url, data, {
                 headers: { Authorization: `Bearer ${user?.token}` }
             });
             onSave();

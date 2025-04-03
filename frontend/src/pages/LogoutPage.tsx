@@ -7,7 +7,7 @@ const LogoutPage = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       navigate("/login");
-    }, 3000); // Redirect after 3 seconds
+    }, 2000); // Redirect after 3 seconds
 
     return () => clearTimeout(timeout); // Cleanup timeout if component unmounts
   }, [navigate]);

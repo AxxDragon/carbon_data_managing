@@ -11,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   login: (userData: { token: string; user: User }) => void;
   logout: () => void;
+  updateToken: (token: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,9 +43,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("user");
     window.location.href = "/logout"; // Redirect to logout page
   };
+  
+  const updateToken = (token: string) => {
+    setUser((prevUser) => (prevUser ? { ...prevUser, token } : null));
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateToken }}>
       {children}
     </AuthContext.Provider>
   );

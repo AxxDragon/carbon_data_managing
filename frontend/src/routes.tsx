@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
+import TimeoutPage from "./pages/TimeoutPage";
 import ConsumptionList from "./pages/ConsumptionList";
 import ConsumptionForm from "./pages/ConsumptionForm";
 import Analyze from "./pages/Analyze";
@@ -21,6 +22,7 @@ const AppRoutes = () => {
         {/* Routes for everyone (not logged in yet) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/timeout" element={<TimeoutPage />} />
         <Route path="/complete-account-setup/:inviteToken" element={<CompleteAccountSetup />} /> {/* Account setup route */}
 
         {/* Routes requiring authentication */}

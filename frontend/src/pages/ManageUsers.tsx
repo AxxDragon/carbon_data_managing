@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api"; // Corrected import
 import UserForm from "./UserForm";
 
 type User = {
@@ -27,11 +27,11 @@ const ManageUsers = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:8000/users", {
+      const response = await api.get("users", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
 
-      const projectsRes = await axios.get("http://localhost:8000/projects", {
+      const projectsRes = await api.get("projects", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
 
@@ -63,7 +63,7 @@ const ManageUsers = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axios.delete(`http://localhost:8000/users/${id}`, {
+      await api.delete(`users/${id}`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       fetchUsers();

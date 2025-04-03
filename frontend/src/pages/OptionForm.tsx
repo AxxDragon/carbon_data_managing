@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api"; // Corrected import
 
 interface Option {
     id?: number;
@@ -35,7 +35,7 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const endpoint = `http://localhost:8000/options/${category.toLowerCase().replace(" ", "-")}${option ? `/${option.id}` : ""}`;
+        const endpoint = `/options/${category.toLowerCase().replace(" ", "-")}${option ? `/${option.id}` : ""}`;
         const method = option ? "put" : "post";
 
         const data = { name };
@@ -43,8 +43,12 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
             (data as any).averageCO2Emission = averageCO2Emission;
         }
 
-        await axios[method](endpoint, data);
-        onSave();
+        try {
+            await api[method](endpoint, data);  // Use api instance instead of axios
+            onSave();
+        } catch (error) {
+            console.error("Error submitting option:", error);
+        }
     };
 
     return (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api";  // Corrected import
 
 interface UserSubmit {
   id: number;
@@ -32,7 +32,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
   // Fetch companies (only for admins)
   useEffect(() => {
     if (authUser?.role === "admin") {
-      axios.get("http://localhost:8000/options/companies").then((res) => {
+      api.get("/options/companies").then((res) => {  // No need to specify full URL
         setCompanies(res.data);
       });
     }
@@ -49,9 +49,8 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     const fetchProjects = async () => {
       try {
         // Fetch all available projects
-        const projectsRes = await axios.get<{ id: number; name: string; companyId: number }[]>(
-          "http://localhost:8000/projects",
-          { headers: { Authorization: `Bearer ${authUser?.token}` } }
+        const projectsRes = await api.get<{ id: number; name: string; companyId: number }[]>( // No need to specify full URL
+          "/projects"
         );
     
         // Filter projects to only show those belonging to the selected user's company
@@ -60,9 +59,8 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     
         if (user?.id) {
           // Fetch assigned projects with names
-          const assignedProjectsRes = await axios.get<{ id: number; name: string }[]>(
-            `http://localhost:8000/users/${user.id}/projects`,
-            { headers: { Authorization: `Bearer ${authUser?.token}` } }
+          const assignedProjectsRes = await api.get<{ id: number; name: string }[]>( // No need to specify full URL
+            `/users/${user.id}/projects`
           );
     
           setProjects(assignedProjectsRes.data); // Store assigned projects with names
@@ -72,7 +70,6 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
       }
     };
     
-  
     fetchProjects();
   }, [authUser, user]);  
 
@@ -89,16 +86,13 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     };
   
     try {
-      await axios.put(`http://localhost:8000/users/${user.id}`, data, {
-        headers: { Authorization: `Bearer ${authUser?.token}` },
-      });
+      await api.put(`/users/${user.id}`, data);  // No need to specify full URL
   
       onSave();
     } catch (error) {
       console.error("Error updating user:", error);
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit}>
@@ -133,42 +127,41 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
       )}
 
       {/* Assigned Projects List */}
-<label>Assigned Projects:</label>
-<div>
-  {projects.length > 0 ? (
-    projects.map((p) => (
-      <span key={p.id} style={{ marginRight: "10px", cursor: "pointer", color: "red" }}
-        onClick={() => setProjects((prev) => prev.filter((proj) => proj.id !== p.id))}>
-        {p.name} ❌
-      </span>
-    ))
-  ) : (
-    <span>No assigned projects</span>
-  )}
-</div>
+      <label>Assigned Projects:</label>
+      <div>
+        {projects.length > 0 ? (
+          projects.map((p) => (
+            <span key={p.id} style={{ marginRight: "10px", cursor: "pointer", color: "red" }}
+              onClick={() => setProjects((prev) => prev.filter((proj) => proj.id !== p.id))}>
+              {p.name} ❌
+            </span>
+          ))
+        ) : (
+          <span>No assigned projects</span>
+        )}
+      </div>
 
-{/* Dropdown for Adding New Projects */}
-<label>Add Project:</label>
-<select
-  value=""
-  onChange={(e) => {
-    const projectId = Number(e.target.value);
-    if (!projects.find((p) => p.id === projectId)) {
-      const selectedProject = availableProjects.find((p) => p.id === projectId);
-      if (selectedProject) setProjects([...projects, selectedProject]);
-    }
-  }}
->
-  <option value="" disabled>Select a project</option>
-  {availableProjects
-    .filter((p) => !projects.some((proj) => proj.id === p.id)) // Exclude already assigned projects
-    .map((p) => (
-      <option key={p.id} value={p.id}>
-        {p.name}
-      </option>
-    ))}
-</select>
-
+      {/* Dropdown for Adding New Projects */}
+      <label>Add Project:</label>
+      <select
+        value=""
+        onChange={(e) => {
+          const projectId = Number(e.target.value);
+          if (!projects.find((p) => p.id === projectId)) {
+            const selectedProject = availableProjects.find((p) => p.id === projectId);
+            if (selectedProject) setProjects([...projects, selectedProject]);
+          }
+        }}
+      >
+        <option value="" disabled>Select a project</option>
+        {availableProjects
+          .filter((p) => !projects.some((proj) => proj.id === p.id)) // Exclude already assigned projects
+          .map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+      </select>
 
       <button type="submit">Save</button>
       <button type="button" onClick={onCancel}>Cancel</button>

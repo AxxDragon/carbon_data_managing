@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api";
 import InviteForm from "./InviteForm";
 
 interface Invite {
@@ -27,7 +27,7 @@ const InviteUser = () => {
 
   const fetchInvites = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:8000/invites", {
+      const response = await api.get("invites", {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       setInvites(response.data);
@@ -39,7 +39,7 @@ const InviteUser = () => {
   useEffect(() => {
     fetchInvites();
   
-    axios.get("http://localhost:8000/options/companies", {
+    api.get("options/companies", {
       headers: { Authorization: `Bearer ${user?.token}` },
     })
     .then(response => {
@@ -54,7 +54,7 @@ const InviteUser = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this invite?")) return;
     try {
-      await axios.delete(`http://localhost:8000/invites/${id}`, {
+      await api.delete(`invites/${id}`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       fetchInvites();
@@ -66,7 +66,7 @@ const InviteUser = () => {
 
   const handleResend = async (id: number) => {
     try {
-      await axios.post(`http://localhost:8000/invites/${id}/resend`, {}, {
+      await api.post(`invites/${id}/resend`, {}, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       alert("Invite resent successfully!");

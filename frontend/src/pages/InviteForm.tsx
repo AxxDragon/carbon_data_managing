@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 interface Invite {
@@ -41,7 +41,7 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
     setCompanyId(invite?.companyId);
 
     if (user?.role === "admin") {
-      axios.get("http://localhost:8000/options/companies", {
+      api.get("options/companies", {
         headers: { Authorization: `Bearer ${user?.token}` },
       })
       .then(response => setCompanies(response.data))
@@ -57,12 +57,12 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
     try {
         if (invite) {
           // If it's an edit, delete the old invite first
-          await axios.delete(`http://localhost:8000/invites/${invite.id}`, {
+          await api.delete(`invites/${invite.id}`, {
             headers: { Authorization: `Bearer ${user?.token}` },
           });
         }
-        await axios.post(
-            "http://localhost:8000/invites/",
+        await api.post(
+            "invites/",
             { email, firstName, lastName, role, companyId },
             { headers: { Authorization: `Bearer ${user?.token}` } }
         );

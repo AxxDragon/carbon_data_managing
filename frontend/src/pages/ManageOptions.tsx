@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import OptionForm from "./OptionForm";
 
 const TABS = ["Companies", "Activity Types", "Fuel Types", "Units"];
@@ -24,13 +24,13 @@ const Options = () => {
   
   const fetchOptions = useCallback(async () => {
   const urls: Record<"Companies" | "Activity Types" | "Fuel Types" | "Units", string> = {
-    Companies: "http://localhost:8000/options/companies",
-    "Activity Types": "http://localhost:8000/options/activity-types",
-    "Fuel Types": "http://localhost:8000/options/fuel-types",
-    Units: "http://localhost:8000/options/units",
+    Companies: "options/companies",
+    "Activity Types": "options/activity-types",
+    "Fuel Types": "options/fuel-types",
+    Units: "options/units",
   };
     try {
-      const response = await axios.get(urls[activeTab as keyof typeof urls]); // Ensuring TypeScript recognizes the key
+      const response = await api.get(urls[activeTab as keyof typeof urls]); // Ensuring TypeScript recognizes the key
       setOptions(response.data);
     } catch (error) {
       console.error("Error fetching options", error);
@@ -44,7 +44,7 @@ const Options = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      await axios.delete(`http://localhost:8000/options/${activeTab.toLowerCase().replace(" ", "-")}/${id}`);
+      await api.delete(`options/${activeTab.toLowerCase().replace(" ", "-")}/${id}`);
       fetchOptions();
     } catch (error) {
       console.error("Error deleting option", error);

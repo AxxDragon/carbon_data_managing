@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import api from "../utils/api";
 import { Link } from "react-router-dom";
 
 interface Consumption {
@@ -30,8 +30,8 @@ const ConsumptionList = () => {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Consumption | "time" | "user" | null; direction: "asc" | "desc" }>({ key: null, direction: "asc" });
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/consumption", {
+    api
+      .get("consumption", {
         headers: { Authorization: `Bearer ${user?.token}` },
       })
       .then((res) => setConsumptions(res.data))
@@ -40,8 +40,8 @@ const ConsumptionList = () => {
 
   const handleDelete = (id: number) => {
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
-    axios
-      .delete(`http://localhost:8000/consumption/${id}`, {
+    api
+      .delete(`consumption/${id}`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       })
       .then(() => {
