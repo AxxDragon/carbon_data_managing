@@ -27,7 +27,8 @@ def login(login_data: LoginSchema, response: Response, db: Session = Depends(get
     access_token = create_access_token({
         "sub": str(user.id),
         "email": user.email,
-        "role": user.role
+        "role": user.role,
+        "companyId": user.companyId
     })
 
     refresh_token = create_refresh_token({"sub": str(user.id)})
@@ -43,14 +44,13 @@ def login(login_data: LoginSchema, response: Response, db: Session = Depends(get
 
     return {
         "token": access_token,
-        "user": {"id": user.id, "email": user.email, "role": user.role}
+        "user": {"id": user.id, "email": user.email, "role": user.role, "companyId": user.companyId}
     }
 
 @router.post("/refresh")
 def refresh_token(request: Request, response: Response):
     """Refreshes access token using refresh token from cookies."""
     refresh_token = request.cookies.get("refresh_token")
-    logger.debug(f"Received refresh request. Cookie: {refresh_token}")
 
     if not refresh_token:
         logger.warning("No refresh token found in cookies")
@@ -58,8 +58,6 @@ def refresh_token(request: Request, response: Response):
 
     try:
         new_access_token, new_refresh_token = refresh_access_token(refresh_token)
-        logger.info(f"New access token generated: {new_access_token}")
-        logger.info(f"New refresh token generated: {new_refresh_token}")
     except Exception as e:
         logger.error(f"Refresh failed: {e}")
         raise HTTPException(status_code=401, detail="Invalid refresh token!")

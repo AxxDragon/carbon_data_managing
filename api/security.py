@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 import secrets
-from logging_config import logger
 
 # Password hashing settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -66,8 +65,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def refresh_access_token(refresh_token: str):
     """Refreshes an expired access token using a refresh token."""
     try:
-        logger.debug(f"Decoding refresh token: {refresh_token}")
-
         payload = jwt.decode(refresh_token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
         user_id = int(payload.get("sub"))
 

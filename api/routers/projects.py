@@ -5,6 +5,7 @@ from models import Project, User, Company
 from schemas import ProjectSchema, ProjectSubmitSchema
 from security import get_current_user
 from datetime import date
+from logging_config import logger
 
 router = APIRouter()
 
@@ -15,6 +16,9 @@ def get_projects(db: Session = Depends(get_db), user: User = Depends(get_current
     
     if user.role == "companyadmin":
         query = query.filter(Project.companyId == user.companyId)
+    elif user.role == "user":
+        logger.debug(f"User: {user.projects}")
+        query = query.filter(Project.id.in_([p.projectId for p in user.projects]))
 
     projects = query.all()
 

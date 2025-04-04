@@ -5,7 +5,6 @@ from models import Consumption, User, Project, ActivityType, FuelType, Unit, Com
 from schemas import ConsumptionSchema, ConsumptionSubmitSchema
 from security import get_current_user
 from typing import List
-from datetime import date
 
 router = APIRouter()
 
@@ -44,7 +43,7 @@ def get_consumptions(db: Session = Depends(get_db), current_user=Depends(get_cur
     elif current_user.role == "companyadmin":
         consumptions = query.filter(Project.companyId == current_user.companyId).all()
     else:
-        consumptions = query.filter(Project.id.in_([p.id for p in current_user.projects])).all()
+        consumptions = query.filter(Project.id.in_([p.projectId for p in current_user.projects])).all()
 
     return [ConsumptionSchema(**row._asdict()) for row in consumptions]
 
@@ -56,7 +55,7 @@ def get_projects(db: Session = Depends(get_db), current_user: User = Depends(get
     elif current_user.role == "companyadmin":
         projects = db.query(Project).filter(Project.companyId == current_user.companyId).all()
     else:
-        projects = db.query(Project).filter(Project.id.in_([p.id for p in current_user.projects])).all()
+        projects = db.query(Project).filter(Project.id.in_([p.projectId for p in current_user.projects])).all()
 
     return [{"id": p.id, "name": p.name} for p in projects]
 
@@ -86,7 +85,7 @@ def create_consumption(data: ConsumptionSubmitSchema, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Project not found")
 
     # Users can only create entries for projects they are part of
-    if current_user.role == "user" and project.id not in [p.id for p in current_user.projects]:
+    if current_user.role == "user" and project.id not in [p.projectId for p in current_user.projects]:
         raise HTTPException(status_code=403, detail="Not allowed to add to this project")
 
     # Company admins can create entries for any project within their company

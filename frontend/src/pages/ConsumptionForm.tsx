@@ -109,12 +109,12 @@ const ConsumptionForm = () => {
         <div className="row">
           <div className="col-md-6 mb-3">
             <label className="form-label">Start Date</label>
-            <input className="form-control" name="startDate" type="date" value={formData.startDate} onChange={handleChange} required />
+            <input className="form-control" name="startDate" type="date" value={formData.startDate} onChange={handleChange} max={todayDate} required />
           </div>
 
           <div className="col-md-6 mb-3">
             <label className="form-label">End Date</label>
-            <input className="form-control" name="endDate" type="date" value={formData.endDate} onChange={handleChange} required />
+            <input className="form-control" name="endDate" type="date" value={formData.endDate} onChange={handleChange} max={todayDate} required />
           </div>
         </div>
 

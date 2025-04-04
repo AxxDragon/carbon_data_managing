@@ -1,12 +1,18 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
+
+  const handleLogout = () => {
+    navigate("/logout");
+    logout();
+  };
 
   return (
     <header className="bg-dark text-white shadow-sm px-3 py-2 fixed-top">
@@ -14,9 +20,12 @@ const Header = () => {
         
         {/* Left Side: Logo & Title */}
         <div className="d-flex align-items-center">
-          <div className="bg-secondary text-white p-3 rounded-circle me-2" style={{ width: 50, height: 50 }}>
-            {/* Placeholder for Logo */}
-          </div>
+          <img
+            src="/assets/CARMA_Logo.png"
+            alt="CARMA Logo"
+            className="me-0"
+            style={{ width: 92, height: 92, objectFit: "contain", borderRadius: "50%" }}
+          />
           <div>
             <h1 className="mb-0 fw-bold">CARMA</h1>
             <p className="mb-0 small text-light">Carbon emission data</p>
@@ -38,7 +47,7 @@ const Header = () => {
               style={{ minWidth: "150px", backgroundColor: "#6c757d" }} // Matches Bootstrap's btn-secondary
             >
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="btn btn-secondary w-100"
               >
                 Logout

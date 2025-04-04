@@ -19,8 +19,6 @@ api.interceptors.request.use((config) => {
   const userData = localStorage.getItem("user");
   const token = userData ? JSON.parse(userData).token : null;
 
-  console.log("Access token:", token);
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -57,8 +55,6 @@ export const setupInterceptors = (updateToken: (token: string) => void) => {
                 throw new Error("No token received from refresh");
             }
             const newAccessToken = refreshResponse.data.token;
-
-            console.log("New token received:", newAccessToken);
 
             // Update localStorage with new token
             const userData = localStorage.getItem("user");

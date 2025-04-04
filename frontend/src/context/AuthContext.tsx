@@ -4,6 +4,7 @@ interface User {
   id: number;
   email: string;
   role: "user" | "companyadmin" | "admin";
+  companyId: number;
   token: string;
 }
 
@@ -39,9 +40,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };  
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    window.location.href = "/logout"; // Redirect to logout page
+    setTimeout(() => {
+      setUser(null);
+      localStorage.removeItem("user");
+    }, 100); // Short delay to allow navigation first
   };
   
   const updateToken = (token: string) => {

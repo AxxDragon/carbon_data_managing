@@ -72,11 +72,19 @@ const Analyze = () => {
         });
         setProjects(projectRes.data);
 
-        if (user?.role === "admin") {
+        if (user?.role === "admin" || user?.role === "companyadmin") {
           const companyRes = await api.get<Company[]>("options/companies", {
             headers: { Authorization: `Bearer ${user?.token}` },
           });
-          setCompanies(companyRes.data);
+        
+          if (user?.role === "companyadmin") {
+            const filteredCompanies = companyRes.data.filter(
+              (company) => company.id === user.companyId
+            );
+            setCompanies(filteredCompanies);
+          } else {
+            setCompanies(companyRes.data);
+          }
         }
 
         const fuelTypesRes = await api.get<{ id: number; averageCO2Emission: number }[]>(
@@ -97,7 +105,7 @@ const Analyze = () => {
       }
     };
     fetchData();
-  }, [user?.role, user?.token]);
+  }, [user]);
 
   // Fetch data when selectedItem changes
   const processConsumptionData = useCallback((data: ConsumptionEntry[]): ProcessedData[] => {
@@ -207,11 +215,18 @@ const Analyze = () => {
   
   const getDisplayName = (item: Project | Company) => {
     if ("companyId" in item) {
-      // Project: For admins, show "CompanyName - ProjectName"
+      // This is a project
       const company = companies.find(c => c.id === item.companyId);
-      return company ? `${company.name} - ${item.name}` : item.name;
+      
+      if (user?.role === "admin") {
+        // Admins see "CompanyName - ProjectName"
+        return company ? `${company.name} - ${item.name}` : item.name;
+      } else {
+        // CompanyAdmins and Users see just "ProjectName"
+        return item.name;
+      }
     } else {
-      // Company: Show "Company - CompanyName"
+      // This is a company, only CompanyAdmins and Admins see it
       return `Company - ${item.name}`;
     }
   };
