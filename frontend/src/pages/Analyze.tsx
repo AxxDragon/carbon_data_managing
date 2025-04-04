@@ -247,84 +247,112 @@ const Analyze = () => {
     currentPage * itemsPerPage
   );
 
-  if (selectedItem) {
-    return (
-      <div>
-        <button onClick={() => setSelectedItem(null)}>← Back</button>
-        <h2>{selectedItem.name} Analysis</h2>
-        {loading ? (
-          <p>Loading data...</p>
-        ) : (
-          <>
-            <div>
-              {Object.keys(visibleLines).map((lineKey) => (
-                <label key={lineKey}>
-                  <input
-                    type="checkbox"
-                    checked={visibleLines[lineKey] ?? true}
-                    onChange={() => toggleLine(lineKey)}
-                  />
-                  {lineKey}
-                </label>
-              ))}
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={consumptionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {Object.keys(visibleLines).map((lineKey, index) =>
-                  visibleLines[lineKey] && (
-                    <Line 
-                      key={lineKey} 
-                      type="monotone" 
-                      dataKey={lineKey} 
-                      stroke={lineKey === "Total CO₂" ? "#ff0000" : generateColor(index, Object.keys(visibleLines).length)}
-                    />
-                  )
-                )}
-              </LineChart>
-            </ResponsiveContainer>
-          </>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <h2>Analyze Data</h2>
-      <input
-        type="text"
-        placeholder="Search projects/companies"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      {loading ? (
-        <p>Loading data...</p>
+    <div className="container">
+      {selectedItem ? (
+        <div>
+          <button
+            onClick={() => setSelectedItem(null)}
+            className="btn btn-secondary mb-3"
+          >
+            ← Back
+          </button>
+          <h2>{selectedItem.name} Analysis</h2>
+          {loading ? (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mb-3">
+                {Object.keys(visibleLines).map((lineKey) => (
+                  <label key={lineKey} className="me-2">
+                    <input
+                      type="checkbox"
+                      checked={visibleLines[lineKey] ?? true}
+                      onChange={() => toggleLine(lineKey)}
+                      className="form-check-input"
+                    />
+                    {lineKey}
+                  </label>
+                ))}
+              </div>
+              <div className="row mt-4">
+                <div className="col-12">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={consumptionData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      {Object.keys(visibleLines).map((lineKey, index) =>
+                        visibleLines[lineKey] && (
+                          <Line 
+                            key={lineKey} 
+                            type="monotone" 
+                            dataKey={lineKey} 
+                            stroke={lineKey === "Total CO₂" ? "#ff0000" : generateColor(index, Object.keys(visibleLines).length)}
+                          />
+                        )
+                      )}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       ) : (
-        <ul>
-          {paginatedItems.map((item) => (
-            <li key={`${"company" in item ? "company" : "project"}-${item.id}`} onClick={() => handleSelection(item)}>
-            {getDisplayName(item)}
-          </li>
-          ))}
-        </ul>
+        <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+          <h2 className="mb-4">Analyze Data</h2>
+          <input
+            type="text"
+            placeholder="Search projects/companies"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-control mb-3"
+          />
+          {loading ? (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <ul className="list-group">
+              {paginatedItems.map((item) => (
+                <li
+                  key={`${"company" in item ? "company" : "project"}-${item.id}`}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleSelection(item)}
+                  className="list-group-item list-group-item-action"
+                >
+                  {getDisplayName(item)}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="d-flex justify-content-between mt-3">
+            <button
+              className="btn btn-secondary"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
+              Previous
+            </button>
+            <button
+              className="btn btn-secondary"
+              disabled={currentPage * itemsPerPage >= filteredItems.length}
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
-      <button
-        disabled={currentPage === 1}
-        onClick={() => setCurrentPage(currentPage - 1)}
-      >
-        Previous
-      </button>
-      <button
-        disabled={currentPage * itemsPerPage >= filteredItems.length}
-        onClick={() => setCurrentPage(currentPage + 1)}
-      >
-        Next
-      </button>
     </div>
   );
 };

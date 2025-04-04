@@ -103,110 +103,115 @@ const ConsumptionList = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl">Consumption List</h2>
-        <Link to="/consumption-form" className="bg-green-500 text-white px-4 py-2 rounded">
-          + Add Consumption
-        </Link>
+    <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="display-4">Consumption List</h2>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search by project, activity, user..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border w-full"
-      />
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by project, activity, user..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control"
+        />
+      </div>
 
-      <table className="min-w-full border">
-        <thead>
-          <tr className="bg-gray-200">
-            {user?.role === "admin" && (
-              <th className="border p-2 cursor-pointer" onClick={() => toggleSort("company")}>
-                Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+      <Link to="/consumption-form" className="btn btn-primary mb-3">
+        + Add Consumption
+      </Link>
+
+      <div className="table-responsive">
+        <table className="table table-striped table-bordered">
+          <thead className="thead-dark">
+            <tr>
+              {user?.role === "admin" && (
+                <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("company")}>
+                  Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+                </th>
+              )}
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("project")}>
+                Project {sortConfig.key === "project" && (sortConfig.direction === "asc" ? "▲" : "▼")}
               </th>
-            )}
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("project")}>
-              Project {sortConfig.key === "project" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("activityType")}>
-              Activity Type {sortConfig.key === "activityType" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("description")}>
-              Description {sortConfig.key === "description" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("startDate")}>
-              Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("endDate")}>
-              End Date {sortConfig.key === "endDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("time")}>
-              Time (Days) {sortConfig.key === "time" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("amount")}>
-              Amount {sortConfig.key === "amount" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("unit")}>
-              Unit {sortConfig.key === "unit" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("fuelType")}>
-              Fuel Type {sortConfig.key === "fuelType" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("reportDate")}>
-              Report Date {sortConfig.key === "reportDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2 cursor-pointer" onClick={() => toggleSort("user")}>
-              User {sortConfig.key === "user" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedConsumptions.map((c) => (
-            <tr key={c.id} className="border">
-              {user?.role === "admin" && <td className="border p-2">{c.company}</td>}
-              <td className="border p-2">{c.project}</td>
-              <td className="border p-2">{c.activityType}</td>
-              <td className="border p-2">{c.description}</td>
-              <td className="border p-2">{c.startDate}</td>
-              <td className="border p-2">{c.endDate}</td>
-              <td className="border p-2">{calculateDays(c.startDate, c.endDate)}</td>
-              <td className="border p-2">{c.amount}</td>
-              <td className="border p-2">{c.unit}</td>
-              <td className="border p-2">{c.fuelType}</td>
-              <td className="border p-2">{c.reportDate}</td>
-              <td className="border p-2">{c.user_first_name} {c.user_last_name}</td>
-              <td className="border p-2">
-                {(user?.role === "admin" || user?.role === "companyadmin" || user?.id === c.userId) && (
-                  <>
-                    <Link to={`/consumption-form/${c.id}`} className="bg-blue-500 text-white px-2 py-1 rounded mx-1">
-                      Edit
-                    </Link>
-                    <button onClick={() => handleDelete(c.id)} className="bg-red-500 text-white px-2 py-1 rounded">
-                      Delete
-                    </button>
-                  </>
-                )}
-              </td>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("activityType")}>
+                Activity Type {sortConfig.key === "activityType" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("description")}>
+                Description {sortConfig.key === "description" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("startDate")}>
+                Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("endDate")}>
+                End Date {sortConfig.key === "endDate" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("time")}>
+                Time (Days) {sortConfig.key === "time" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("amount")}>
+                Amount {sortConfig.key === "amount" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("unit")}>
+                Unit {sortConfig.key === "unit" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("fuelType")}>
+                Fuel Type {sortConfig.key === "fuelType" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("reportDate")}>
+                Report Date {sortConfig.key === "reportDate" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th className="cursor-pointer" style={{ cursor: "pointer" }} onClick={() => toggleSort("user")}>
+                User {sortConfig.key === "user" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedConsumptions.map((c) => (
+              <tr key={c.id}>
+                {user?.role === "admin" && <td>{c.company}</td>}
+                <td>{c.project}</td>
+                <td>{c.activityType}</td>
+                <td>{c.description}</td>
+                <td>{c.startDate}</td>
+                <td>{c.endDate}</td>
+                <td>{calculateDays(c.startDate, c.endDate)}</td>
+                <td>{c.amount}</td>
+                <td>{c.unit}</td>
+                <td>{c.fuelType}</td>
+                <td>{c.reportDate}</td>
+                <td>{c.user_first_name} {c.user_last_name}</td>
+                <td>
+                  {(user?.role === "admin" || user?.role === "companyadmin" || user?.id === c.userId) && (
+                    <>
+                      <Link to={`/consumption-form/${c.id}`} className="btn btn-warning btn-sm mb-1">
+                        Edit
+                      </Link>
+                      <button onClick={() => handleDelete(c.id)} className="btn btn-danger btn-sm">
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <div className="mt-4">
+      <div className="mt-3">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 mr-2"
+          className="btn btn-secondary me-1"
         >
           Previous
         </button>
         <button
           disabled={currentPage * itemsPerPage >= sortedConsumptions.length}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300"
+          className="btn btn-secondary"
         >
           Next
         </button>

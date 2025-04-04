@@ -4,9 +4,10 @@ import { Outlet } from "react-router-dom";
 
 const Layout = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-light">
       <Header />
-      <main className="flex-grow p-4">
+      {/* Adjusting margin-top based on header height (~140px) */}
+      <main className="flex-grow p-4" style={{ marginTop: '140px' }}>
         <Outlet />
       </main>
       <Footer />

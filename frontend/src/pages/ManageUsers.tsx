@@ -107,85 +107,115 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Manage Users</h2>
-      <input
-        type="text"
-        placeholder="Search users"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border w-full"
-      />
+    <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+      <h2 className="mb-4">Manage Users</h2>
+  
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control"
+        />
+      </div>
+  
       <button
-        className="mb-4 px-4 py-2 bg-blue-500 text-white"
-        onClick={() => { setSelectedUser(undefined); setShowForm(true); }}
+        className="btn btn-primary mb-3"
+        onClick={() => {
+          setSelectedUser(undefined);
+          setShowForm(true);
+        }}
       >
         Create User
       </button>
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr>
-            {user?.role === "admin" && (
-              <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("company")}>
-                Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-              </th>
-            )}
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("firstName")}>
-              Name {sortConfig.key === "firstName" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("email")}>
-              Email {sortConfig.key === "email" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("role")}>
-              Role {sortConfig.key === "role" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2">Projects</th>
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedUsers.map((u) => (
-            <tr key={u.id}>
-              {user?.role === "admin" && <td className="border px-4 py-2">{u.company}</td>}
-              <td className="border px-4 py-2">{u.firstName} {u.lastName}</td>
-              <td className="border px-4 py-2">{u.email}</td>
-              <td className="border px-4 py-2">{u.role}</td>
-              <td className="border px-4 py-2">{u.projects.length > 0 ? u.projects.join(", ") : "None"}</td>
-              <td className="border px-4 py-2">
-                <button
-                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
-                  onClick={() => { 
-                    setSelectedUser(undefined); 
-                    setTimeout(() => setSelectedUser(u), 0); 
-                    setShowForm(true);
-                  }}
+  
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover">
+          <thead className="table-light">
+            <tr>
+              {user?.role === "admin" && (
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => toggleSort("company")}
+                  className="sortable"
                 >
-                  Edit
-                </button>
-                <button className="px-2 py-1 bg-red-500 text-white" onClick={() => handleDelete(u.id)}>
-                  Delete
-                </button>
-              </td>
+                  Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+                </th>
+              )}
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("firstName")}
+                className="sortable"
+              >
+                Name {sortConfig.key === "firstName" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("email")}
+                className="sortable"
+              >
+                Email {sortConfig.key === "email" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("role")}
+                className="sortable"
+              >
+                Role {sortConfig.key === "role" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th>Projects</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-4">
+          </thead>
+          <tbody>
+            {paginatedUsers.map((u) => (
+              <tr key={u.id}>
+                {user?.role === "admin" && <td>{u.company}</td>}
+                <td>{u.firstName} {u.lastName}</td>
+                <td>{u.email}</td>
+                <td>{u.role}</td>
+                <td>{u.projects.length > 0 ? u.projects.join(", ") : "None"}</td>
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => {
+                      setSelectedUser(u);
+                      setShowForm(true);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(u.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+  
+      <div className="mt-3">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 mr-2"
+          className="btn btn-secondary me-1"
         >
           Previous
         </button>
         <button
           disabled={currentPage * itemsPerPage >= sortedUsers.length}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300"
+          className="btn btn-secondary"
         >
           Next
         </button>
       </div>
+  
       {showForm && (
         <UserForm
           user={
@@ -193,7 +223,10 @@ const ManageUsers = () => {
               ? { ...selectedUser, projects: selectedUser.projects.map(Number) }
               : { id: 0, firstName: "", lastName: "", email: "", role: "", companyId: 0, projects: [] }
           }
-          onSave={() => { setShowForm(false); fetchUsers(); }}
+          onSave={() => {
+            setShowForm(false);
+            fetchUsers();
+          }}
           onCancel={() => setShowForm(false)}
         />
       )}

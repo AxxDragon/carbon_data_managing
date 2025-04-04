@@ -32,7 +32,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
   // Fetch companies (only for admins)
   useEffect(() => {
     if (authUser?.role === "admin") {
-      api.get("/options/companies").then((res) => {  // No need to specify full URL
+      api.get("/options/companies").then((res) => {
         setCompanies(res.data);
       });
     }
@@ -49,7 +49,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     const fetchProjects = async () => {
       try {
         // Fetch all available projects
-        const projectsRes = await api.get<{ id: number; name: string; companyId: number }[]>( // No need to specify full URL
+        const projectsRes = await api.get<{ id: number; name: string; companyId: number }[]>(
           "/projects"
         );
     
@@ -59,7 +59,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     
         if (user?.id) {
           // Fetch assigned projects with names
-          const assignedProjectsRes = await api.get<{ id: number; name: string }[]>( // No need to specify full URL
+          const assignedProjectsRes = await api.get<{ id: number; name: string }[]>(
             `/users/${user.id}/projects`
           );
     
@@ -82,11 +82,11 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
       email, 
       role, 
       companyId, 
-      projects: projects.map((p) => p.id), // Send only IDs
+      projects: projects.map((p) => p.id),
     };
   
     try {
-      await api.put(`/users/${user.id}`, data);  // No need to specify full URL
+      await api.put(`/users/${user.id}`, data);
   
       onSave();
     } catch (error) {
@@ -95,44 +95,85 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>First Name:</label>
-      <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+    <form onSubmit={handleSubmit} className="p-3">
+      <div className="d-flex flex-wrap gap-2">
+        <div className="flex-fill">
+          <label>First Name:</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
 
-      <label>Last Name:</label>
-      <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+        <div className="flex-fill">
+          <label>Last Name:</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
 
-      <label>Email:</label>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <div className="flex-fill">
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
+      </div>
 
-      {/* Admins can change role, companyadmins cannot */}
       {authUser?.role === "admin" && (
-        <>
-          <label>Role:</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="admin">Admin</option>
-            <option value="companyadmin">Company Admin</option>
-            <option value="user">User</option>
-          </select>
+        <div className="d-flex flex-wrap gap-2">
+          <div className="flex-fill">
+            <label>Role:</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="form-select"
+            >
+              <option value="admin">Admin</option>
+              <option value="companyadmin">Company Admin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
 
-          <label>Company:</label>
-          <select value={companyId} onChange={(e) => setCompanyId(Number(e.target.value))}>
-            {companies.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </>
+          <div className="flex-fill">
+            <label>Company:</label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(Number(e.target.value))}
+              className="form-select"
+            >
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       )}
 
       {/* Assigned Projects List */}
       <label>Assigned Projects:</label>
-      <div>
+      <div className="d-flex flex-wrap gap-2">
         {projects.length > 0 ? (
           projects.map((p) => (
-            <span key={p.id} style={{ marginRight: "10px", cursor: "pointer", color: "red" }}
-              onClick={() => setProjects((prev) => prev.filter((proj) => proj.id !== p.id))}>
+            <span
+              key={p.id}
+              className="badge bg-danger"
+              style={{ cursor: "pointer" }}
+              onClick={() => setProjects((prev) => prev.filter((proj) => proj.id !== p.id))}
+            >
               {p.name} ❌
             </span>
           ))
@@ -152,10 +193,13 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
             if (selectedProject) setProjects([...projects, selectedProject]);
           }
         }}
+        className="form-select"
       >
-        <option value="" disabled>Select a project</option>
+        <option value="" disabled>
+          Select a project
+        </option>
         {availableProjects
-          .filter((p) => !projects.some((proj) => proj.id === p.id)) // Exclude already assigned projects
+          .filter((p) => !projects.some((proj) => proj.id === p.id))
           .map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
@@ -163,8 +207,14 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           ))}
       </select>
 
-      <button type="submit">Save</button>
-      <button type="button" onClick={onCancel}>Cancel</button>
+      <div className="mt-3 d-flex justify-content-between">
+        <button type="submit" className="btn btn-primary">
+          Save
+        </button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
     </form>
   );
 };

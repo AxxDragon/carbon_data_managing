@@ -11,3 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.custom-container-bg {
+  background-color: #5a8a66; /* A custom shade */
+}

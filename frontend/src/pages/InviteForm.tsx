@@ -78,59 +78,83 @@ const InviteForm: React.FC<InviteFormProps> = ({ invite, onInviteSuccess, onCanc
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>First Name:</label>
-      <input
-        type="text"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
-        required
-      />
-
-      <label>Last Name:</label>
-      <input
-        type="text"
-        value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
-        required
-      />
-
-      <label>Email:</label>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-
-      {user?.role === "admin" && (
-        <>
-          <label>Role:</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="user">User</option>
-            <option value="companyadmin">Company Admin</option>
-          </select>
-
-          <label>Company:</label>
-          <select
-            value={companyId ?? ""}
-            onChange={(e) => setCompanyId(Number(e.target.value))}
+    <form onSubmit={handleSubmit} className="p-3">
+      <div className="d-flex flex-wrap gap-2">
+        <div className="flex-fill">
+          <label>First Name:</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="form-control"
             required
-          >
-            <option value="">Select a company</option>
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>{company.name}</option>
-            ))}
-          </select>
-        </>
-      )}
+          />
+        </div>
+        <div className="flex-fill">
+          <label>Last Name:</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
+        <div className="flex-fill">
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-control"
+            required
+          />
+        </div>
+        {user?.role === "admin" && (
+          <>
+            <div className="flex-fill">
+              <label>Role:</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="form-select"
+                required
+              >
+                <option value="user">User</option>
+                <option value="companyadmin">Company Admin</option>
+              </select>
+            </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+            <div className="flex-fill">
+              <label>Company:</label>
+              <select
+                value={companyId ?? ""}
+                onChange={(e) => setCompanyId(Number(e.target.value))}
+                className="form-select"
+                required
+              >
+                <option value="">Select a company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
+      </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? "Sending..." : "Send Invitation"}
-      </button>
-      <button type="button" onClick={onCancel}>Cancel</button>
+      {error && <p className="text-danger">{error}</p>}
+
+      <div className="d-flex justify-content-between mt-3">
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading ? "Sending..." : "Send Invitation"}
+        </button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
     </form>
   );
 };

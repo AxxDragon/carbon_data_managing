@@ -89,86 +89,112 @@ const ManageProjects = () => {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10 p-4">
-      <h2 className="text-2xl mb-4">Manage Projects</h2>
-      <input
-        type="text"
-        placeholder="Search projects"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="border p-2 mb-4 w-full"
-      />
+    <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+      <h2 className="mb-4">Manage Projects</h2>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search projects"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control"
+        />
+      </div>
       <button
-        className="mb-4 px-4 py-2 bg-blue-500 text-white"
+        className="btn btn-primary mb-3"
         onClick={() => { setSelectedProject(undefined); setShowForm(true); }}
       >
         Create Project
       </button>
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr>
-            {user?.role === "admin" && (
-              <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("company")}>
-                Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover">
+          <thead className="table-light">
+            <tr>
+              {user?.role === "admin" && (
+                <th
+                  style={{ cursor: "pointer" }}
+                  onClick={() => toggleSort("company")}
+                  className="sortable"
+                >
+                  Company {sortConfig.key === "company" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+                </th>
+              )}
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("name")}
+                className="sortable"
+              >
+                Name {sortConfig.key === "name" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
               </th>
-            )}
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("name")}>
-              Name {sortConfig.key === "name" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("startDate")}>
-              Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("endDate")}>
-              End Date {sortConfig.key === "endDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("status")}>
-              Status {sortConfig.key === "status" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedProjects.map((p) => (
-            <tr key={p.id}>
-              {user?.role === "admin" && <td className="border px-4 py-2">{p.company}</td>}
-              <td className="border px-4 py-2">{p.name}</td>
-              <td className="border px-4 py-2">{p.startDate}</td>
-              <td className="border px-4 py-2">{p.endDate || "N/A"}</td>
-              <td className="border px-4 py-2">{p.status}</td>
-              <td className="border px-4 py-2">
-                <button
-                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
-                  onClick={() => { setSelectedProject(p); setShowForm(true); }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="px-2 py-1 bg-red-500 text-white"
-                  onClick={() => handleDelete(p.id)}
-                >
-                  Delete
-                </button>
-              </td>
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("startDate")}
+                className="sortable"
+              >
+                Start Date {sortConfig.key === "startDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("endDate")}
+                className="sortable"
+              >
+                End Date {sortConfig.key === "endDate" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("status")}
+                className="sortable"
+              >
+                Status {sortConfig.key === "status" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
+              </th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-4">
+          </thead>
+          <tbody>
+            {paginatedProjects.map((p) => (
+              <tr key={p.id}>
+                {user?.role === "admin" && <td>{p.company}</td>}
+                <td>{p.name}</td>
+                <td>{p.startDate}</td>
+                <td>{p.endDate || "N/A"}</td>
+                <td>{p.status}</td>
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => { setSelectedProject(p); setShowForm(true); }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(p.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-3">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 mr-2"
+          className="btn btn-secondary me-1"
         >
           Previous
         </button>
         <button
           disabled={currentPage * itemsPerPage >= sortedProjects.length}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300"
+          className="btn btn-secondary"
         >
           Next
         </button>
       </div>
+
       {showForm && (
         <ProjectForm
           project={selectedProject}

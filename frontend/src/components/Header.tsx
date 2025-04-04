@@ -7,26 +7,37 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="bg-gray-900 text-white p-4 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Website Name */}
-        <h1 className="text-xl font-bold">CARMA</h1>
-        <p className="text">Carbon emission data</p>
-        <p className="text">Managing tool</p>
+    <header className="bg-dark text-white shadow-sm px-3 py-2 fixed-top">
+      <div className="container-fluid d-flex justify-content-between align-items-center px-2">
+        
+        {/* Left Side: Logo & Title */}
+        <div className="d-flex align-items-center">
+          <div className="bg-secondary text-white p-3 rounded-circle me-2" style={{ width: 50, height: 50 }}>
+            {/* Placeholder for Logo */}
+          </div>
+          <div>
+            <h1 className="mb-0 fw-bold">CARMA</h1>
+            <p className="mb-0 small text-light">Carbon emission data</p>
+            <p className="mb-0 small text-light">Managing tool</p>
+          </div>
+        </div>
 
-        {/* User Dropdown */}
-        <div className="relative">
+        {/* Right Side: User Dropdown */}
+        <div className="position-relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="bg-gray-700 px-4 py-2 rounded"
+            className="btn btn-secondary px-3"
           >
             {user?.email} ▼
           </button>
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-md rounded">
-              <button 
-                onClick={logout} 
-                className="block px-4 py-2 hover:bg-gray-200 w-full text-left"
+            <div 
+              className="position-absolute end-0 mt-2 shadow-sm rounded border"
+              style={{ minWidth: "150px", backgroundColor: "#6c757d" }} // Matches Bootstrap's btn-secondary
+            >
+              <button
+                onClick={logout}
+                className="btn btn-secondary w-100"
               >
                 Logout
               </button>
@@ -36,21 +47,31 @@ const Header = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="mt-4">
-        <ul className="flex space-x-4">
-          <li><Link to="/consumption-list" className="hover:underline">List</Link></li>
-          <li><Link to="/analyze" className="hover:underline">Analyze</Link></li>
-          {user?.role === "companyadmin" || user?.role === "admin" ? (
+      <nav className="mt-2">
+        <ul className="nav nav-pills justify-content-center">
+          <li className="nav-item">
+            <Link to="/consumption-list" className="nav-link text-light">Consumption List</Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/analyze" className="nav-link text-light">Analyze</Link>
+          </li>
+          {(user?.role === "companyadmin" || user?.role === "admin") && (
             <>
-              <li><Link to="/manage-projects" className="hover:underline">Manage Projects</Link></li>
-              <li><Link to="/manage-users" className="hover:underline">Manage Users</Link></li>
-              <li><Link to="/invite" className="hover:underline">Invite</Link></li>
+              <li className="nav-item">
+                <Link to="/manage-projects" className="nav-link text-light">Manage Projects</Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/manage-users" className="nav-link text-light">Manage Users</Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/invite" className="nav-link text-light">Invite</Link>
+              </li>
             </>
-          ) : null}
+          )}
           {user?.role === "admin" && (
-            <>
-              <li><Link to="/manage-options" className="hover:underline">Manage Options</Link></li>
-            </>
+            <li className="nav-item">
+              <Link to="/manage-options" className="nav-link text-light">Manage Options</Link>
+            </li>
           )}
         </ul>
       </nav>

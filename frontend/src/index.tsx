@@ -4,6 +4,7 @@ import AppRoutes from "./routes";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { setupInterceptors } from "./utils/api";
 import "./index.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const RootComponent = () => {
   const { updateToken } = useAuth();

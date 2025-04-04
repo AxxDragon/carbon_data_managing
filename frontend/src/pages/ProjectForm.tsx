@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../utils/api";  // Corrected import
+import api from "../utils/api";
 
 interface ProjectSubmit {
     id?: number;
@@ -20,26 +20,28 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     const { user } = useAuth();
     const [name, setName] = useState("");
     const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState<string | null>(""); 
-    const [companyId, setCompanyId] = useState<number | "">(""); // Start empty
+    const [endDate, setEndDate] = useState<string | null>("");
+    const [companyId, setCompanyId] = useState<number | "">("");
     const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
-    const [companyAdminCompanyId, setCompanyAdminCompanyId] = useState<number | null>(null); // Stores API-fetched companyId
+    const [companyAdminCompanyId, setCompanyAdminCompanyId] = useState<number | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     // Fetch companyId for companyadmins
     useEffect(() => {
         if (user?.role === "companyadmin") {
             api.get("/users/me", {
-                headers: { Authorization: `Bearer ${user?.token}` }
+                headers: { Authorization: `Bearer ${user?.token}` },
             })
-            .then((res) => setCompanyAdminCompanyId(res.data.companyId))
-            .catch((error) => console.error("Error fetching user data", error));
+                .then((res) => setCompanyAdminCompanyId(res.data.companyId))
+                .catch((error) => console.error("Error fetching user data", error));
         }
     }, [user]);
 
     // Fetch companies (only for admins)
     useEffect(() => {
         if (user?.role === "admin") {
-            api.get("/options/companies").then((res) => { // No need to specify full URL
+            api.get("/options/companies").then((res) => {
                 setCompanies(res.data);
             });
         }
@@ -52,73 +54,114 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
             setStartDate(project.startDate);
             setEndDate(project.endDate || "");
             if (user?.role === "admin") {
-                // Resolve companyId from name for editing
                 const foundCompany = companies.find((c) => c.name === project.company);
                 setCompanyId(foundCompany ? foundCompany.id : "");
             } else {
-                setCompanyId(companyAdminCompanyId || ""); // Ensure companyadmin gets their ID
+                setCompanyId(companyAdminCompanyId || ""); // companyadmin gets their company ID
             }
         } else {
-            // Reset fields for new project
             setName("");
             setStartDate("");
             setEndDate("");
             setCompanyId(user?.role === "admin" ? "" : companyAdminCompanyId || ""); // Default for admins: empty, companyadmins: their ID
         }
-    }, [project, user, companyAdminCompanyId, companies]); // Runs when `project` or dependencies change
+    }, [project, user, companyAdminCompanyId, companies]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
+
         const method = project ? "put" : "post";
-        const url = project ? `/projects/${project.id}` : "/projects"; // No need to specify full URL
-    
-        // Ensure endDate is `null` if empty
+        const url = project ? `/projects/${project.id}` : "/projects";
+
         const formattedEndDate = endDate && endDate.trim() !== "" ? endDate : null;
-        const data: ProjectSubmit = { 
-            name, 
-            startDate, 
-            endDate: formattedEndDate, 
-            companyId: Number(companyId) 
+        const data: ProjectSubmit = {
+            name,
+            startDate,
+            endDate: formattedEndDate,
+            companyId: Number(companyId),
         };
-    
+
         try {
             await api[method](url, data, {
-                headers: { Authorization: `Bearer ${user?.token}` }
+                headers: { Authorization: `Bearer ${user?.token}` },
             });
             onSave();
         } catch (error) {
-            console.error("Error submitting project:", error);
+            setError("Failed to save project. Please try again.");
         }
+
+        setLoading(false);
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label>Project Name:</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        <form onSubmit={handleSubmit} className="p-3">
+            <div className="d-flex flex-wrap gap-2">
+                <div className="flex-fill">
+                    <label>Project Name:</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
 
-            <label>Start Date:</label>
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+                <div className="flex-fill">
+                    <label>Start Date:</label>
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
 
-            <label>End Date:</label>
-            <input type="date" value={endDate || ""} onChange={(e) => setEndDate(e.target.value || null)} />
+                <div className="flex-fill">
+                    <label>End Date:</label>
+                    <input
+                        type="date"
+                        value={endDate || ""}
+                        onChange={(e) => setEndDate(e.target.value || null)}
+                        className="form-control"
+                    />
+                </div>
 
-            {/* Only show dropdown for admins */}
-            {user?.role === "admin" && companies.length > 0 && (
-                <>
-                    <label>Company:</label>
-                    <select value={companyId} onChange={(e) => setCompanyId(Number(e.target.value))} required>
-                        <option value="" disabled>Select a company</option>
-                        {companies.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
+                {user?.role === "admin" && companies.length > 0 && (
+                    <div className="flex-fill">
+                        <label>Company:</label>
+                        <select
+                            value={companyId}
+                            onChange={(e) => setCompanyId(Number(e.target.value))}
+                            className="form-select"
+                            required
+                        >
+                            <option value="" disabled>
+                                Select a company
                             </option>
-                        ))}
-                    </select>
-                </>
-            )}
+                            {companies.map((company) => (
+                                <option key={company.id} value={company.id}>
+                                    {company.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+            </div>
 
-            <button type="submit">Save</button>
-            <button type="button" onClick={onCancel}>Cancel</button>
+            {error && <p className="text-danger">{error}</p>}
+
+            <div className="d-flex justify-content-between mt-3">
+                <button type="submit" disabled={loading} className="btn btn-primary">
+                    {loading ? "Saving..." : "Save Project"}
+                </button>
+                <button type="button" onClick={onCancel} className="btn btn-secondary">
+                    Cancel
+                </button>
+            </div>
         </form>
     );
 };

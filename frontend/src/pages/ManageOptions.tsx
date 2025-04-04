@@ -78,97 +78,114 @@ const Options = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Manage Options</h2>
-      <div className="flex space-x-4 mb-4">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className={`px-4 py-2 border ${tab === activeTab ? "bg-gray-300" : "bg-white"}`}
-            onClick={() => {
-              setActiveTab(tab);
-              setShowForm(false);
-              setCurrentPage(1);
-            }}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-      <input
-        type="text"
-        placeholder="Search options"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border w-full"
-      />
-      <button
-        className="mb-4 px-4 py-2 bg-blue-500 text-white"
-        onClick={() => {
-          setSelectedOption(undefined);
-          setShowForm(true);
-        }}
-      >
-        Create New {activeTab === "Companies" ? "Company" : activeTab.slice(0, -1)}
-      </button>
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("name")}>
-              Name
-              {sortConfig.key === "name" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-            </th>
-            {activeTab === "Fuel Types" && (
-              <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("averageCO2Emission")}>
-                Avg CO2 Emission
-                {sortConfig.key === "averageCO2Emission" && (sortConfig.direction === "asc" ? " ▲" : " ▼")}
-              </th>
-            )}
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedOptions.map((option) => (
-            <tr key={option.id}>
-              <td className="border px-4 py-2">{option.name}</td>
-              {activeTab === "Fuel Types" && <td className="border px-4 py-2">{option.averageCO2Emission}</td>}
-              <td className="border px-4 py-2">
-                <button
-                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
-                  onClick={() => {
-                    setSelectedOption(option);
-                    setShowForm(true);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="px-2 py-1 bg-red-500 text-white"
-                  onClick={() => handleDelete(option.id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
+    <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+      <h2 className="mb-4">Manage Options</h2>
+      
+      <div className="mb-4">
+        <div className="btn-group" role="group">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              className={`btn btn-outline-success text-white ${tab === activeTab ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab(tab);
+                setShowForm(false);
+                setCurrentPage(1);
+              }}
+            >
+              {tab}
+            </button>
           ))}
-        </tbody>
-      </table>
-      <div className="mt-4">
+        </div>
+      </div>
+
+      <div className="mb-4 d-flex align-items-center">
+        <input
+          type="text"
+          placeholder="Search options"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control w-50"
+        />
+        <button
+          className="btn btn-primary ms-3"
+          onClick={() => {
+            setSelectedOption(undefined);
+            setShowForm(true);
+          }}
+        >
+          Create New {activeTab === "Companies" ? "Company" : activeTab.slice(0, -1)}
+        </button>
+      </div>
+
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th
+                className="sortable"
+                style={{ cursor: "pointer" }}
+                onClick={() => toggleSort("name")}
+              >
+                Name {sortConfig.key === "name" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+              </th>
+              {activeTab === "Fuel Types" && (
+                <th
+                  className="sortable"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => toggleSort("averageCO2Emission")}
+                >
+                  Avg CO2 Emission {sortConfig.key === "averageCO2Emission" && (sortConfig.direction === "asc" ? "▲" : "▼")}
+                </th>
+              )}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedOptions.map((option) => (
+              <tr key={option.id}>
+                <td>{option.name}</td>
+                {activeTab === "Fuel Types" && <td>{option.averageCO2Emission}</td>}
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => {
+                      setSelectedOption(option);
+                      setShowForm(true);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(option.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="d-flex justify-content-between mt-3">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 mr-2"
+          className="btn btn-secondary"
         >
           Previous
         </button>
         <button
           disabled={currentPage * itemsPerPage >= sortedOptions.length}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300"
+          className="btn btn-secondary"
         >
           Next
         </button>
       </div>
+
       {showForm && (
         <OptionForm
           category={activeTab as "Companies" | "Activity Types" | "Fuel Types" | "Units"}

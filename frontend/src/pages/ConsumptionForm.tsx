@@ -7,9 +7,9 @@ const ConsumptionForm = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams(); // Get consumption ID from URL if editing
-
   const isEditing = Boolean(id);
   const todayDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+  
   const [formData, setFormData] = useState({
     projectId: "",
     amount: "",
@@ -28,37 +28,26 @@ const ConsumptionForm = () => {
   const [activityTypes, setActivityTypes] = useState([]);
   const [fuelTypes, setFuelTypes] = useState([]);
   const [units, setUnits] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch dropdown options from API
   useEffect(() => {
-    api.get("consumption/projects", { headers: { Authorization: `Bearer ${user?.token}` } })
-      .then(res => setProjects(res.data))
-      .catch(err => console.error("Error fetching projects:", err));
-
-    api.get("options/activity-types", { headers: { Authorization: `Bearer ${user?.token}` } })
-      .then(res => setActivityTypes(res.data))
-      .catch(err => console.error("Error fetching activity types:", err));
-
-    api.get("options/fuel-types", { headers: { Authorization: `Bearer ${user?.token}` } })
-      .then(res => setFuelTypes(res.data))
-      .catch(err => console.error("Error fetching fuel types:", err));
-
-    api.get("options/units", { headers: { Authorization: `Bearer ${user?.token}` } })
-      .then(res => setUnits(res.data))
-      .catch(err => console.error("Error fetching units:", err));
+    Promise.all([
+      api.get("consumption/projects", { headers: { Authorization: `Bearer ${user?.token}` } }).then(res => setProjects(res.data)),
+      api.get("options/activity-types", { headers: { Authorization: `Bearer ${user?.token}` } }).then(res => setActivityTypes(res.data)),
+      api.get("options/fuel-types", { headers: { Authorization: `Bearer ${user?.token}` } }).then(res => setFuelTypes(res.data)),
+      api.get("options/units", { headers: { Authorization: `Bearer ${user?.token}` } }).then(res => setUnits(res.data))
+    ]).finally(() => setIsLoading(false));
   }, [user]);
 
   // Fetch existing data if editing
   useEffect(() => {
     if (isEditing) {
-      api
-        .get(`consumption/${id}`, {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        })
-        .then((res) => setFormData(res.data))
-        .catch((err) => console.error("Error fetching consumption:", err));
+      api.get(`consumption/${id}`, { headers: { Authorization: `Bearer ${user?.token}` } })
+        .then(res => setFormData(res.data))
+        .catch(err => console.error("Error fetching consumption:", err));
     }
-}, [id, user?.token, isEditing]);
+  }, [id, user?.token, isEditing]);
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -96,57 +85,82 @@ const ConsumptionForm = () => {
       .catch((err) => console.error("Error saving consumption:", err));
   };
 
+  if (isLoading) return <div className="text-center py-4">Loading...</div>;
+
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">{isEditing ? "Edit Consumption" : "New Consumption"}</h2>
-      
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <label className="block text-sm font-medium text-gray-700">Project</label>
-        <select className="border p-2" name="projectId" value={formData.projectId} onChange={handleChange} required>
-          <option value="" disabled>Select Project</option>
-          {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
+    <div className="container mt-4 p-4 rounded shadow-sm custom-container-bg">
+      <h2 className="mb-4 text-black">{isEditing ? "Edit Consumption" : "New Consumption"}</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Project</label>
+            <select className="form-select" name="projectId" value={formData.projectId} onChange={handleChange} required>
+              <option value="" disabled>Select Project</option>
+              {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
 
-        <label className="block text-sm font-medium text-gray-700">Amount</label>
-        <input className="border p-2" name="amount" type="number" value={formData.amount} onChange={handleChange} required />
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Report Date</label>
+            <input className="form-control" name="reportDate" type="date" value={formData.reportDate} readOnly />
+          </div>
+        </div>
 
-        <label className="block text-sm font-medium text-gray-700">Start Date</label>
-        <input className="border p-2" name="startDate" type="date" value={formData.startDate} onChange={handleChange} required />
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Start Date</label>
+            <input className="form-control" name="startDate" type="date" value={formData.startDate} onChange={handleChange} required />
+          </div>
 
-        <label className="block text-sm font-medium text-gray-700">End Date</label>
-        <input className="border p-2" name="endDate" type="date" value={formData.endDate} onChange={handleChange} required />
+          <div className="col-md-6 mb-3">
+            <label className="form-label">End Date</label>
+            <input className="form-control" name="endDate" type="date" value={formData.endDate} onChange={handleChange} required />
+          </div>
+        </div>
 
-        <label className="block text-sm font-medium text-gray-700">Report Date</label>
-        <input className="border p-2" name="reportDate" type="date" value={formData.reportDate} readOnly />
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Activity Type</label>
+            <select className="form-select" name="activityTypeId" value={formData.activityTypeId} onChange={handleChange} required>
+              <option value="" disabled>Select Activity Type</option>
+              {activityTypes.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+          </div>
 
-        <label className="block text-sm font-medium text-gray-700">Description</label>
-        <textarea className="border p-2" name="description" value={formData.description} onChange={handleChange} />
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Amount</label>
+            <input className="form-control" name="amount" type="number" value={formData.amount} onChange={handleChange} required />
+          </div>
+        </div>
+        
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Fuel Type</label>
+            <select className="form-select" name="fuelTypeId" value={formData.fuelTypeId} onChange={handleChange} required>
+              <option value="" disabled>Select Fuel Type</option>
+              {fuelTypes.map((f: any) => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+          </div>
 
-        <label className="block text-sm font-medium text-gray-700">Activity Type</label>
-        <select className="border p-2" name="activityTypeId" value={formData.activityTypeId} onChange={handleChange} required>
-          <option value="" disabled>Select Activity Type</option>
-          {activityTypes.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-        </select>
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Unit</label>
+            <select className="form-select" name="unitId" value={formData.unitId} onChange={handleChange} required>
+              <option value="" disabled>Select Unit</option>
+              {units.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+          </div>
+        </div>
 
-        <label className="block text-sm font-medium text-gray-700">Fuel Type</label>
-        <select className="border p-2" name="fuelTypeId" value={formData.fuelTypeId} onChange={handleChange} required>
-          <option value="" disabled>Select Fuel Type</option>
-          {fuelTypes.map((f: any) => <option key={f.id} value={f.id}>{f.name}</option>)}
-        </select>
+        <div className="mb-3">
+          <label className="form-label">Description</label>
+          <textarea className="form-control" name="description" value={formData.description} onChange={handleChange} />
+        </div>
 
-        <label className="block text-sm font-medium text-gray-700">Unit</label>
-        <select className="border p-2" name="unitId" value={formData.unitId} onChange={handleChange} required>
-          <option value="" disabled>Select Unit</option>
-          {units.map((u: any) => <option key={u.id} value={u.id}>{u.name}</option>)}
-        </select>
-
-        <div className="flex gap-2">
-          <button className="bg-blue-500 text-white p-2 flex-1" type="submit">
-            {isEditing ? "Update" : "Create"} Consumption
+        <div className="d-flex gap-2">
+          <button className="btn btn-primary flex-grow-1" type="submit">
+            <i className="bi bi-check-circle"></i> {isEditing ? "Update" : "Create"} Consumption
           </button>
-          <button type="button" className="bg-gray-500 text-white p-2 flex-1" onClick={() => navigate("/")}>
-            Back to List
-          </button>
+          <button type="button" className="btn btn-outline-dark flex-grow-1" onClick={() => navigate("/")}>Cancel</button>
         </div>
       </form>
     </div>

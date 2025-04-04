@@ -52,25 +52,46 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label>Name:</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-
-            {category === "Fuel Types" && (
-                <>
-                    <label>Average CO2 Emission (kg CO2/unit):</label>
+        <form onSubmit={handleSubmit} className="p-3">
+            <div className="d-flex flex-wrap gap-2">
+                <div className="flex-fill">
+                    <label htmlFor="name" className="form-label">Name:</label>
                     <input
-                        type="number"
-                        value={averageCO2Emission}
-                        onChange={(e) => setAverageCO2Emission(parseFloat(e.target.value) || 0)}
-                        step="0.01"
+                        type="text"
+                        id="name"
+                        className="form-control"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         required
                     />
-                </>
-            )}
+                </div>
 
-            <button type="submit">Save</button>
-            <button type="button" onClick={onCancel}>Cancel</button>
+                {category === "Fuel Types" && (
+                    <div className="flex-fill">
+                        <label htmlFor="averageCO2Emission" className="form-label">
+                            Average CO2 Emission (kg CO2/unit):
+                        </label>
+                        <input
+                            type="number"
+                            id="averageCO2Emission"
+                            className="form-control"
+                            value={averageCO2Emission}
+                            onChange={(e) => setAverageCO2Emission(parseFloat(e.target.value) || 0)}
+                            step="0.01"
+                            required
+                        />
+                    </div>
+                )}
+            </div>
+
+            <div className="d-flex justify-content-between mt-4">
+                <button type="submit" className="btn btn-primary">
+                    Save
+                </button>
+                <button type="button" onClick={onCancel} className="btn btn-secondary">
+                    Cancel
+                </button>
+            </div>
         </form>
     );
 };

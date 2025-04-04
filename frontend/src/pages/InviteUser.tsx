@@ -120,82 +120,118 @@ const InviteUser = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl mb-4">Manage Invites</h2>
-      <input
-        type="text"
-        placeholder="Search invites"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border w-full"
-      />
+    <div className="container mt-4 custom-container-bg p-4 rounded shadow-sm">
+      <h2 className="mb-4">Manage Invites</h2>
+  
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search invites"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control"
+        />
+      </div>
+  
       <button
-        className="mb-4 px-4 py-2 bg-blue-500 text-white"
-        onClick={() => { setSelectedInvite(undefined); setShowForm(true); }}
+        className="btn btn-primary mb-3"
+        onClick={() => {
+          setSelectedInvite(undefined);
+          setShowForm(true);
+        }}
       >
         Create Invite
       </button>
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("firstName")}>Name {getArrowIndicator("firstName")}</th>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("email")}>Email {getArrowIndicator("email")}</th>
-            {user?.role === "admin" && <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("role")}>Role {getArrowIndicator("role")}</th>}
-            {user?.role === "admin" && <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("company")}>Company {getArrowIndicator("company")}</th>}
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => toggleSort("createdAt")}>Created {getArrowIndicator("createdAt")}</th>
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedInvites.map((invite) => (
-            <tr key={invite.id}>
-              <td className="border px-4 py-2">{invite.firstName} {invite.lastName}</td>
-              <td className="border px-4 py-2">{invite.email}</td>
-              {user?.role === "admin" && <td className="border px-4 py-2">{invite.role}</td>}
+  
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover">
+          <thead className="table-light">
+            <tr>
+              <th style={{ cursor: "pointer" }} onClick={() => toggleSort("firstName")} className="sortable">
+                Name {getArrowIndicator("firstName")}
+              </th>
+              <th style={{ cursor: "pointer" }} onClick={() => toggleSort("email")} className="sortable">
+                Email {getArrowIndicator("email")}
+              </th>
               {user?.role === "admin" && (
-                <td className="border px-4 py-2">
-                  {companies.find((c) => c.id === invite.companyId)?.name || "Unknown"}
-                </td>
+                <th style={{ cursor: "pointer" }} onClick={() => toggleSort("role")} className="sortable">
+                  Role {getArrowIndicator("role")}
+                </th>
               )}
-              <td className="border px-4 py-2">{new Date(invite.createdAt).toLocaleString()}</td>
-              <td className="border px-4 py-2">
-                <button
-                  className="mr-2 px-2 py-1 bg-yellow-500 text-white"
-                  onClick={() => { setSelectedInvite(invite); setShowForm(true); }}
-                >
-                  Edit
-                </button>
-                <button className="mr-2 px-2 py-1 bg-green-500 text-white" onClick={() => handleResend(invite.id)}>
-                  Resend
-                </button>
-                <button className="px-2 py-1 bg-red-500 text-white" onClick={() => handleDelete(invite.id)}>
-                  Delete
-                </button>
-              </td>
+              {user?.role === "admin" && (
+                <th style={{ cursor: "pointer" }} onClick={() => toggleSort("company")} className="sortable">
+                  Company {getArrowIndicator("company")}
+                </th>
+              )}
+              <th style={{ cursor: "pointer" }} onClick={() => toggleSort("createdAt")} className="sortable">
+                Created {getArrowIndicator("createdAt")}
+              </th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="mt-4">
+          </thead>
+          <tbody>
+            {paginatedInvites.map((invite) => (
+              <tr key={invite.id}>
+                <td>{invite.firstName} {invite.lastName}</td>
+                <td>{invite.email}</td>
+                {user?.role === "admin" && <td>{invite.role}</td>}
+                {user?.role === "admin" && (
+                  <td>{companies.find((c) => c.id === invite.companyId)?.name || "Unknown"}</td>
+                )}
+                <td>{new Date(invite.createdAt).toLocaleString()}</td>
+                <td>
+                  <button
+                    className="btn btn-warning btn-sm me-2"
+                    onClick={() => {
+                      setSelectedInvite(invite);
+                      setShowForm(true);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-success btn-sm me-2"
+                    onClick={() => handleResend(invite.id)}
+                  >
+                    Resend
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(invite.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+  
+      <div className="mt-3">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 mr-2"
+          className="btn btn-secondary me-1"
         >
           Previous
         </button>
         <button
           disabled={currentPage * itemsPerPage >= sortedInvites.length}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300"
+          className="btn btn-secondary"
         >
           Next
         </button>
       </div>
+  
       {showForm && (
         <InviteForm
           invite={selectedInvite}
-          onInviteSuccess={() => { setShowForm(false); fetchInvites(); }}
+          onInviteSuccess={() => {
+            setShowForm(false);
+            fetchInvites();
+          }}
           onCancel={() => setShowForm(false)}
         />
       )}

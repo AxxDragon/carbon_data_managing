@@ -67,34 +67,50 @@ const CompleteAccountSetup = () => {
   };
 
   if (error) return (
-    <div>
-    <p style={{ color: "red" }}>{error}</p>
-    <button type="button" onClick={() => navigate(0)}>Go Back and Retry</button>
+    <div className="container mt-4 p-4 rounded shadow-sm bg-light text-center">
+      <p className="text-danger fw-bold">{error}</p>
+      <button className="btn btn-secondary" onClick={() => navigate(0)}>Go Back and Retry</button>
     </div>
   );
-  if (!userDetails) return <p>Loading...</p>;
+  if (!userDetails) return <p className="text-center mt-4">Loading...</p>;
 
   return (
-    <div>
-      <h2>Complete Account Setup</h2>
-      <p>Email: <strong>{userDetails.email}</strong></p>
-      <p>Name: <strong>{userDetails.firstName} {userDetails.lastName}</strong></p>
-      <form onSubmit={handleSubmit}>
-        <label>Password:</label>
-        <input
+    <div className="container mt-4 p-4 rounded shadow-sm bg-light">
+      <h2 className="mb-3 text-primary text-center">Complete Account Setup</h2>
+      <div className="mb-3 text-center">
+        <p><strong>Email:</strong> {userDetails.email}</p>
+        <p><strong>Name:</strong> {userDetails.firstName} {userDetails.lastName}</p>
+      </div>
+      <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+          <input
             type="password"
+            className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyUp={handlePasswordChange} // <-- Updated
             required
         />
-        {capsLockOn && <p style={{ color: "orange" }}>Warning: Caps Lock is ON!</p>}
-        
-        <label>Confirm Password:</label>
-        <input type="password" value={confirmPassword} onChange={handleConfirmPasswordChange} required />
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" disabled={loading}>{loading ? "Processing..." : "Complete Setup"}</button>
+          {capsLockOn && <p className="text-warning small mt-1">Warning: Caps Lock is ON!</p>}
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Confirm Password</label>
+          <input
+            type="password"
+            className="form-control"
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            required
+          />
+        </div>
+        {error && <p className="text-danger fw-bold">{error}</p>}
+        <div className="d-flex justify-content-center gap-2">
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? "Processing..." : "Complete Setup"}
+          </button>
+          <button className="btn btn-outline-secondary" type="button" onClick={() => navigate("/")}>Cancel</button>
+        </div>
       </form>
     </div>
   );
