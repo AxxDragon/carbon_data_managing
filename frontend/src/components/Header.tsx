@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <header className="bg-dark text-white shadow-sm px-3 py-2 fixed-top">
@@ -50,27 +52,57 @@ const Header = () => {
       <nav className="mt-2">
         <ul className="nav nav-pills justify-content-center">
           <li className="nav-item">
-            <Link to="/consumption-list" className="nav-link text-light">Consumption List</Link>
+            <Link
+              to="/consumption-list"
+              className={`nav-link ${location.pathname === "/consumption-list" ? "text-secondary disabled" : "text-light"}`}
+            >
+              Consumption List
+            </Link>
           </li>
           <li className="nav-item">
-            <Link to="/analyze" className="nav-link text-light">Analyze</Link>
+            <Link
+              to="/analyze"
+              className={`nav-link ${location.pathname === "/analyze" ? "text-secondary disabled" : "text-light"}`}
+            >
+              Analyze
+            </Link>
           </li>
           {(user?.role === "companyadmin" || user?.role === "admin") && (
             <>
               <li className="nav-item">
-                <Link to="/manage-projects" className="nav-link text-light">Manage Projects</Link>
+                <Link
+                  to="/manage-projects"
+                  className={`nav-link ${location.pathname === "/manage-projects" ? "text-secondary disabled" : "text-light"}`}
+                >
+                  Manage Projects
+                </Link>
               </li>
               <li className="nav-item">
-                <Link to="/manage-users" className="nav-link text-light">Manage Users</Link>
+                <Link
+                  to="/manage-users"
+                  className={`nav-link ${location.pathname === "/manage-users" ? "text-secondary disabled" : "text-light"}`}
+                >
+                  Manage Users
+                </Link>
               </li>
               <li className="nav-item">
-                <Link to="/invite" className="nav-link text-light">Invite</Link>
+                <Link
+                  to="/invite"
+                  className={`nav-link ${location.pathname === "/invite" ? "text-secondary disabled" : "text-light"}`}
+                >
+                  Invite
+                </Link>
               </li>
             </>
           )}
           {user?.role === "admin" && (
             <li className="nav-item">
-              <Link to="/manage-options" className="nav-link text-light">Manage Options</Link>
+              <Link
+                to="/manage-options"
+                className={`nav-link ${location.pathname === "/manage-options" ? "text-secondary disabled" : "text-light"}`}
+              >
+                Manage Options
+              </Link>
             </li>
           )}
         </ul>
