@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
+// User type interface to define the structure of the user object
 interface User {
   id: number;
   email: string;
@@ -8,6 +9,7 @@ interface User {
   token: string;
 }
 
+// AuthContextType defines the shape of the context for user authentication
 interface AuthContextType {
   user: User | null;
   login: (userData: { token: string; user: User }) => void;
@@ -15,41 +17,48 @@ interface AuthContextType {
   updateToken: (token: string) => void;
 }
 
+// Create a context with an undefined initial value, to be provided by AuthProvider
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// AuthProvider component to wrap the application and provide auth-related values
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  // State to store the current user, initially set from localStorage (if available)
   const [user, setUser] = useState<User | null>(() => {
     // Retrieve user from localStorage if it exists
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Store user in localStorage when it changes
+  // Effect hook to update localStorage whenever the user state changes
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user)); // Save user to localStorage
     } else {
-      localStorage.removeItem("user");
+      localStorage.removeItem("user"); // Remove user from localStorage if logged out
     }
   }, [user]);
 
+  // Login function to update user state and store it in localStorage
   const login = (userData: { token: string; user: User }) => {
-    const fullUser: User = { ...userData.user, token: userData.token };
-    setUser(fullUser);
-    localStorage.setItem("user", JSON.stringify(fullUser));
-  };  
+    const fullUser: User = { ...userData.user, token: userData.token }; // Combine user data with token
+    setUser(fullUser); // Update state with the full user object
+    localStorage.setItem("user", JSON.stringify(fullUser)); // Store user data in localStorage
+  };
 
+  // Logout function to clear user state and remove data from localStorage
   const logout = () => {
     setTimeout(() => {
-      setUser(null);
-      localStorage.removeItem("user");
+      setUser(null); // Reset user state
+      localStorage.removeItem("user"); // Remove user data from localStorage
     }, 100); // Short delay to allow navigation first
   };
-  
+
+  // Update the authentication token without changing other user details
   const updateToken = (token: string) => {
-    setUser((prevUser) => (prevUser ? { ...prevUser, token } : null));
+    setUser((prevUser) => (prevUser ? { ...prevUser, token } : null)); // Update token if user exists
   };
 
+  // Provide the auth context to children components
   return (
     <AuthContext.Provider value={{ user, login, logout, updateToken }}>
       {children}
@@ -57,8 +66,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// Custom hook to access authentication context
 export const useAuth = () => {
   const context = useContext(AuthContext);
+
+  // Error handling if useAuth is used outside of the AuthProvider
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
-  return context;
+
+  return context; // Return the auth context
 };

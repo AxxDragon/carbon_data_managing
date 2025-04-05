@@ -1,17 +1,21 @@
+/* General body styling */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  margin: 0; /* Remove default margin around the body */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif; /* Apply a system font stack for better performance and consistency across platforms */
+
+  -webkit-font-smoothing: antialiased; /* Enable antialiasing on webkit-based browsers (e.g., Safari) */
+  -moz-osx-font-smoothing: grayscale; /* Enable grayscale font smoothing on Firefox for macOS */
 }
 
+/* Styling for code elements */
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace; /* Use monospaced fonts for displaying code */
 }
 
+/* Custom background for specific container */
 .custom-container-bg {
-  background-color: #5a8a66; /* A custom shade */
+  background-color: #5a8a66; /* A custom shade of green to be used for background */
 }

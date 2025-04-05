@@ -2,9 +2,11 @@ from pydantic import BaseModel, EmailStr
 from datetime import date, datetime
 from typing import Optional, List
 
+
 class LoginSchema(BaseModel):
     email: EmailStr
     password: str
+
 
 class ConsumptionSchema(BaseModel):
     id: int
@@ -25,7 +27,8 @@ class ConsumptionSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+
 class ConsumptionSubmitSchema(BaseModel):
     projectId: int
     amount: float
@@ -42,15 +45,19 @@ class ConsumptionSubmitSchema(BaseModel):
 class CompanySchema(BaseModel):
     name: str
 
+
 class ActivityTypeSchema(BaseModel):
     name: str
+
 
 class FuelTypeSchema(BaseModel):
     name: str
     averageCO2Emission: float
 
+
 class UnitSchema(BaseModel):
     name: str
+
 
 class ProjectSchema(BaseModel):
     id: int
@@ -64,12 +71,14 @@ class ProjectSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ProjectSubmitSchema(BaseModel):
     id: Optional[int] = None
     name: str
     startDate: date
     endDate: Optional[date] = None
     companyId: int  # Admins choose, companyadmins have fixed value
+
 
 class UserSchema(BaseModel):
     id: int
@@ -84,9 +93,11 @@ class UserSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class UserSubmitSchema(BaseModel):
     inviteToken: str
     password: str
+
 
 class InviteSchema(BaseModel):
     id: int
@@ -100,6 +111,7 @@ class InviteSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class InviteSubmitSchema(BaseModel):
     email: EmailStr

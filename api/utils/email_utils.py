@@ -8,10 +8,13 @@ SMTP_PORT = 1025  # MailHog's default SMTP port
 SENDER_EMAIL = "no-reply@example.com"
 SENDER_NAME = "CARMA"
 
-def send_invite_email(recipient_email: str, first_name: str, last_name: str, invite_link: str):
+
+def send_invite_email(
+    recipient_email: str, first_name: str, last_name: str, invite_link: str
+):
     """
     Sends an invitation email with a unique registration link.
-    
+
     :param recipient_email: The email of the invitee.
     :param first_name: First name of the invitee.
     :param last_name: Last name of the invitee.
@@ -23,7 +26,8 @@ def send_invite_email(recipient_email: str, first_name: str, last_name: str, inv
         msg["Subject"] = "You're invited to use CARMA"
         msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
         msg["To"] = recipient_email
-        msg.set_content(f"""
+        msg.set_content(
+            f"""
         Hello {first_name} {last_name},
 
         You have been invited to use CARMA (carbon emission data managing tool). Click the link below to complete your registration:
@@ -34,9 +38,10 @@ def send_invite_email(recipient_email: str, first_name: str, last_name: str, inv
 
         Best regards,  
         {SENDER_NAME}
-        """)
+        """
+        )
 
-        # Connect to MailHog's SMTP server and send email
+        # Connect to SMTP server and send email
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.send_message(msg)
 

@@ -3,7 +3,14 @@ from sqlalchemy.orm import Session
 from models import User
 from database import engine, SessionLocal, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, consumption, invites, options, projects, users  # Importing routes
+from routers import (
+    auth,
+    consumption,
+    invites,
+    options,
+    projects,
+    users,
+)  # Importing routes
 
 # Create the FastAPI instance
 app = FastAPI()
@@ -11,7 +18,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # Allows frontend to access backend
-    allow_credentials=True, # Allows cookies
+    allow_credentials=True,  # Allows cookies
     allow_methods=["*"],  # Allows all HTTP methods
     allow_headers=["*"],  # Allows all headers
 )
@@ -27,6 +34,7 @@ app.include_router(users.router, prefix="/users")
 # Create the database tables (this will only run once when you start the app for the first time)
 Base.metadata.create_all(bind=engine)
 
+
 # Dependency to get the database session
 def get_db():
     db = SessionLocal()
@@ -34,6 +42,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Define an endpoint to retrieve a user by ID
 @app.get("/users/{user_id}")

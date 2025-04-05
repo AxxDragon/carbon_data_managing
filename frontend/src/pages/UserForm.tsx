@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 
+// Define the structure of the UserSubmit object that is used to submit user data
 interface UserSubmit {
   id: number;
   firstName: string;
@@ -12,32 +13,38 @@ interface UserSubmit {
   projects: number[];
 }
 
+// Define the Props interface for the component's expected props
 interface Props {
-  user: UserSubmit;
-  onSave: () => void;
-  onCancel: () => void;
+  user: UserSubmit; // User object that holds user details for editing
+  onSave: () => void; // Callback to trigger on save action
+  onCancel: () => void; // Callback to trigger on cancel action
 }
 
 const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
-  const { user: authUser } = useAuth();
+  const { user: authUser } = useAuth(); // Get the authenticated user details from context
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [email, setEmail] = useState(user.email);
   const [role, setRole] = useState(user.role);
   const [companyId, setCompanyId] = useState(user.companyId);
   const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
-  const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
-  const [availableProjects, setAvailableProjects] = useState<{ id: number; name: string; companyId: number }[]>([]);
+  const [companies, setCompanies] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [availableProjects, setAvailableProjects] = useState<
+    { id: number; name: string; companyId: number }[]
+  >([]);
 
   // Fetch companies (only for admins)
   useEffect(() => {
     if (authUser?.role === "admin") {
       api.get("/options/companies").then((res) => {
-        setCompanies(res.data);
+        setCompanies(res.data); // Set the list of companies for the admin
       });
     }
   }, [authUser]);
 
+  // Set initial form values and fetch projects
   useEffect(() => {
     setFirstName(user.firstName);
     setLastName(user.lastName);
@@ -46,51 +53,55 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     setCompanyId(user.companyId);
     setProjects([]); // Reset projects until we fetch them
 
+    // Function to fetch projects associated with the user
     const fetchProjects = async () => {
       try {
         // Fetch all available projects
-        const projectsRes = await api.get<{ id: number; name: string; companyId: number }[]>(
-          "/projects"
-        );
-    
+        const projectsRes = await api.get<
+          { id: number; name: string; companyId: number }[]
+        >("/projects");
+
         // Filter projects to only show those belonging to the selected user's company
-        const filteredProjects = projectsRes.data.filter((p) => p.companyId === user.companyId);
+        const filteredProjects = projectsRes.data.filter(
+          (p) => p.companyId === user.companyId
+        );
         setAvailableProjects(filteredProjects);
-    
+
         if (user?.id) {
           // Fetch assigned projects with names
-          const assignedProjectsRes = await api.get<{ id: number; name: string }[]>(
-            `/users/${user.id}/projects`
-          );
-    
+          const assignedProjectsRes = await api.get<
+            { id: number; name: string }[]
+          >(`/users/${user.id}/projects`);
+
           setProjects(assignedProjectsRes.data); // Store assigned projects with names
         }
       } catch (error) {
-        console.error("Error fetching projects", error);
+        console.error("Error fetching projects", error); // Error handling for fetching projects
       }
     };
-    
-    fetchProjects();
-  }, [authUser, user]);  
 
+    fetchProjects();
+  }, [authUser, user]);
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data: UserSubmit = { 
-      id: user.id, 
-      firstName, 
-      lastName, 
-      email, 
-      role, 
-      companyId, 
-      projects: projects.map((p) => p.id),
+    const data: UserSubmit = {
+      id: user.id,
+      firstName,
+      lastName,
+      email,
+      role,
+      companyId,
+      projects: projects.map((p) => p.id), // Map projects to their IDs for submission
     };
-  
+
     try {
-      await api.put(`/users/${user.id}`, data);
-  
-      onSave();
+      await api.put(`/users/${user.id}`, data); // Update user data in the backend
+
+      onSave(); // Trigger the onSave callback if the save is successful
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating user:", error); // Error handling for save action
     }
   };
 
@@ -102,7 +113,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           <input
             type="text"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => setFirstName(e.target.value)} // Update state for firstName
             className="form-control"
             required
           />
@@ -113,7 +124,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           <input
             type="text"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => setLastName(e.target.value)} // Update state for lastName
             className="form-control"
             required
           />
@@ -124,20 +135,21 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)} // Update state for email
             className="form-control"
             required
           />
         </div>
       </div>
 
+      {/* Only show role and company fields if the user is an admin */}
       {authUser?.role === "admin" && (
         <div className="d-flex flex-wrap gap-2">
           <div className="flex-fill">
             <label>Role:</label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value)} // Update state for role
               className="form-select"
             >
               <option value="admin">Admin</option>
@@ -150,7 +162,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
             <label>Company:</label>
             <select
               value={companyId}
-              onChange={(e) => setCompanyId(Number(e.target.value))}
+              onChange={(e) => setCompanyId(Number(e.target.value))} // Update state for companyId
               className="form-select"
             >
               {companies.map((c) => (
@@ -172,13 +184,15 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
               key={p.id}
               className="badge bg-danger"
               style={{ cursor: "pointer" }}
-              onClick={() => setProjects((prev) => prev.filter((proj) => proj.id !== p.id))}
+              onClick={() =>
+                setProjects((prev) => prev.filter((proj) => proj.id !== p.id))
+              } // Remove project from assigned list
             >
               {p.name} ❌
             </span>
           ))
         ) : (
-          <span>No assigned projects</span>
+          <span>No assigned projects</span> // Message when there are no assigned projects
         )}
       </div>
 
@@ -189,8 +203,10 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
         onChange={(e) => {
           const projectId = Number(e.target.value);
           if (!projects.find((p) => p.id === projectId)) {
-            const selectedProject = availableProjects.find((p) => p.id === projectId);
-            if (selectedProject) setProjects([...projects, selectedProject]);
+            const selectedProject = availableProjects.find(
+              (p) => p.id === projectId
+            );
+            if (selectedProject) setProjects([...projects, selectedProject]); // Add selected project to assigned list
           }
         }}
         className="form-select"
@@ -199,7 +215,7 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           Select a project
         </option>
         {availableProjects
-          .filter((p) => !projects.some((proj) => proj.id === p.id))
+          .filter((p) => !projects.some((proj) => proj.id === p.id)) // Filter out already assigned projects
           .map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}

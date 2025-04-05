@@ -13,17 +13,21 @@ router = APIRouter()
 @router.get("/", response_model=List[UserSchema])
 def get_users(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """Admins get all users, company admins only see users from their company."""
-    query = (
-    db.query(User, Company.name.label("company"))
-    .join(Company, User.companyId == Company.id)
-    .options(joinedload(User.projects).joinedload(User_Project.project))
-)
 
+    # Build the initial query to fetch users and their company names
+    query = (
+        db.query(User, Company.name.label("company"))
+        .join(Company, User.companyId == Company.id)
+        .options(joinedload(User.projects).joinedload(User_Project.project))
+    )
+
+    # Restrict to company-specific users if requester is a company admin
     if user.role == "companyadmin":
         query = query.filter(User.companyId == user.companyId)
 
     users = query.all()
 
+    # Construct the list of serialized UserSchema responses
     return [
         UserSchema(
             id=user.id,
@@ -33,13 +37,15 @@ def get_users(db: Session = Depends(get_db), user: User = Depends(get_current_us
             role=user.role,
             companyId=user.companyId,
             company=company_name,
-            projects=[up.project.id for up in user.projects]
-        ) for user, company_name in users
+            projects=[up.project.id for up in user.projects],
+        )
+        for user, company_name in users
     ]
+
 
 @router.get("/me", response_model=UserSchema)
 def get_current_user_details(user: User = Depends(get_current_user)):
-    """Return the details of the logged-in user, including companyId if applicable."""
+    """Return the details of the logged-in user."""
     return UserSchema(
         id=user.id,
         firstName=user.firstName,
@@ -47,19 +53,26 @@ def get_current_user_details(user: User = Depends(get_current_user)):
         email=user.email,
         role=user.role,
         companyId=user.companyId,
-        company=user.company.name if user.company else None
+        company=user.company.name if user.company else None,
     )
 
+
 @router.get("/{user_id}", response_model=UserSchema)
-def get_user(user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def get_user(
+    user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
     """Get a user by ID. CompanyAdmins can only access users from their company."""
+
+    # Retrieve the target user by ID
     fetched_user = db.query(User).filter(User.id == user_id).first()
     if not fetched_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Check company-level access control for company admins
     if user.role == "companyadmin" and fetched_user.companyId != user.companyId:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    # Return serialized user object
     return UserSchema(
         id=fetched_user.id,
         firstName=fetched_user.firstName,
@@ -67,7 +80,9 @@ def get_user(user_id: int, db: Session = Depends(get_db), user: User = Depends(g
         email=fetched_user.email,
         role=fetched_user.role,
         companyId=fetched_user.companyId,
-        company=db.query(Company.name).filter(Company.id == fetched_user.companyId).scalar()
+        company=db.query(Company.name)
+        .filter(Company.id == fetched_user.companyId)
+        .scalar(),
     )
 
 
@@ -76,7 +91,9 @@ def create_user(confirm_data: UserSubmitSchema, db: Session = Depends(get_db)):
     """Convert an invite into a confirmed user account."""
 
     # Validate the invite token
-    invite = db.query(Invite).filter(Invite.inviteToken == confirm_data.inviteToken).first()
+    invite = (
+        db.query(Invite).filter(Invite.inviteToken == confirm_data.inviteToken).first()
+    )
     if not invite:
         raise HTTPException(status_code=404, detail="Invalid or expired invite")
 
@@ -103,35 +120,52 @@ def create_user(confirm_data: UserSubmitSchema, db: Session = Depends(get_db)):
         email=new_user.email,
         role=new_user.role,
         companyId=new_user.companyId,
-        company=db.query(Company.name).filter(Company.id == new_user.companyId).scalar(),
+        company=db.query(Company.name)
+        .filter(Company.id == new_user.companyId)
+        .scalar(),
     )
 
 
+# Schema to receive a list of project IDs to assign to a user
 class UserProjectUpdateSchema(BaseModel):
     projectIds: List[int]
 
+
 @router.put("/{user_id}", response_model=UserSchema)
-def update_user(user_id: int, user_data: UserSchema, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def update_user(
+    user_id: int,
+    user_data: UserSchema,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     """Admins can update any user, companyadmins can only update users from their company."""
+
+    # Retrieve user to update
     fetched_user = db.query(User).filter(User.id == user_id).first()
     if not fetched_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Company admins cannot update users from other companies
     if user.role == "companyadmin" and fetched_user.companyId != user.companyId:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    print("Received user update:", user_data.model_dump())
+    print("Received user update:", user_data.model_dump())  # Debug log
+
+    # Update user attributes excluding project assignments
     for key, value in user_data.model_dump(exclude_unset=True).items():
-        if key != "projects":  # Skip projects until next step
+        if key != "projects":
             setattr(fetched_user, key, value)
 
+    # Handle project assignments if present
     if "projects" in user_data.model_dump():
-        # Clear existing assignments
-        db.query(User_Project).filter(User_Project.userId == user_id).delete()
+        db.query(User_Project).filter(
+            User_Project.userId == user_id
+        ).delete()  # Clear old assignments
 
-        # Assign new projects
         for project_id in user_data.projects:
-            db.add(User_Project(userId=user_id, projectId=project_id))
+            db.add(
+                User_Project(userId=user_id, projectId=project_id)
+            )  # Assign new projects
 
     db.commit()
     db.refresh(fetched_user)
@@ -143,18 +177,25 @@ def update_user(user_id: int, user_data: UserSchema, db: Session = Depends(get_d
         email=fetched_user.email,
         role=fetched_user.role,
         companyId=fetched_user.companyId,
-        company=db.query(Company.name).filter(Company.id == fetched_user.companyId).scalar(),
-        projects=user_data.projects
+        company=db.query(Company.name)
+        .filter(Company.id == fetched_user.companyId)
+        .scalar(),
+        projects=user_data.projects,
     )
 
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def delete_user(
+    user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
     """Admins can delete any user, companyadmins can only delete users from their company."""
+
+    # Retrieve user to delete
     fetched_user = db.query(User).filter(User.id == user_id).first()
     if not fetched_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Company admins can only delete users within their own company
     if user.role == "companyadmin" and fetched_user.companyId != user.companyId:
         raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -162,18 +203,23 @@ def delete_user(user_id: int, db: Session = Depends(get_db), user: User = Depend
     db.commit()
     return {"detail": "User deleted"}
 
+
 @router.get("/{user_id}/projects", response_model=List[dict])
-def get_user_projects(user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def get_user_projects(
+    user_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
     """Return a list of projects (ID and Name) assigned to the user."""
+
+    # Retrieve user whose projects are being queried
     fetched_user = db.query(User).filter(User.id == user_id).first()
-    
     if not fetched_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Company admins cannot access users outside their company
     if user.role == "companyadmin" and fetched_user.companyId != user.companyId:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    # Get projects assigned to the user
+    # Get all projects linked to the user via the join table
     projects = (
         db.query(Project.id, Project.name)
         .join(User_Project, User_Project.projectId == Project.id)
@@ -182,4 +228,3 @@ def get_user_projects(user_id: int, db: Session = Depends(get_db), user: User = 
     )
 
     return [{"id": project.id, "name": project.name} for project in projects]
-

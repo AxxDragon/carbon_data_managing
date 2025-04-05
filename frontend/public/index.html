@@ -1,22 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Define the character encoding for the document -->
     <meta charset="utf-8" />
+
+    <!-- Link to the favicon (icon displayed in the browser tab) -->
     <link rel="icon" href="%PUBLIC_URL%/assets/CARMA_Logo.png" />
+
+    <!-- Ensure the page scales correctly on different devices (responsive design) -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Theme color for mobile browsers -->
     <meta name="theme-color" content="#000000" />
+
+    <!-- Description of the app, typically used by search engines and social media -->
     <meta
       name="description"
       content="CARMA is a carbon emission data management tool to help organizations track and analyze their carbon footprints."
     />
+
+    <!-- Custom meta tag for CARMA tool, useful for SEO or other services -->
     <meta name="CARMA" content="Carbon emission data management tool" />
+
+    <!-- Apple Touch Icon (icon displayed when added to an iOS home screen) -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/assets/CARMA_Logo.png" />
-    <!-- Manifest file for PWA -->
+
+    <!-- Link to the manifest file for Progressive Web App (PWA) -->
+    <!-- The manifest contains metadata about the PWA, such as app name, icons, and theme color -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Title of the page (displayed in the browser tab) -->
     <title>CARMA</title>
   </head>
+
   <body>
+    <!-- This message will be shown to users who have JavaScript disabled in their browsers -->
     <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <!-- The root div where the React app will be mounted -->
+    <!-- React will dynamically render the application inside this div -->
     <div id="root"></div>
   </body>
 </html>

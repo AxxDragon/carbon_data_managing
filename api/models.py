@@ -3,15 +3,17 @@ from sqlalchemy.orm import relationship
 from database import Base
 from datetime import date, datetime, timedelta, timezone
 
+
 # Company Model
 class Company(Base):
     __tablename__ = "Company"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    
+
     users = relationship("User", back_populates="company")
     projects = relationship("Project", back_populates="company")
+
 
 # Invite Model
 class Invite(Base):
@@ -33,10 +35,11 @@ class Invite(Base):
         """Check if the invite is expired (7-day limit)."""
         return (datetime.now(timezone.utc) - self.createdAt) > timedelta(days=30)
 
+
 # User Model
 class User(Base):
     __tablename__ = "User"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     firstName = Column(String, index=True)
     lastName = Column(String, index=True)
@@ -44,21 +47,22 @@ class User(Base):
     passwordhash = Column(String)
     role = Column(String)
     companyId = Column(Integer, ForeignKey("Company.id"))
-    
+
     company = relationship("Company", back_populates="users")
     projects = relationship("User_Project", back_populates="user")
     consumptions = relationship("Consumption", back_populates="user")
 
+
 # Project Model
 class Project(Base):
     __tablename__ = "Project"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     startDate = Column(Date)
     endDate = Column(Date)
     companyId = Column(Integer, ForeignKey("Company.id"))
-    
+
     company = relationship("Company", back_populates="projects")
     users = relationship("User_Project", back_populates="project")
     consumptions = relationship("Consumption", back_populates="project")
@@ -71,49 +75,54 @@ class Project(Base):
             return "Ongoing"
         return "Completed"
 
+
 # User_Project (Association Table for Many-to-Many User-Project Relationship)
 class User_Project(Base):
     __tablename__ = "User_Project"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     userId = Column(Integer, ForeignKey("User.id"))
     projectId = Column(Integer, ForeignKey("Project.id"))
-    
+
     user = relationship("User", back_populates="projects")
     project = relationship("Project", back_populates="users")
+
 
 # ActivityType Model
 class ActivityType(Base):
     __tablename__ = "ActivityType"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    
+
     consumptions = relationship("Consumption", back_populates="activity_type")
+
 
 # FuelType Model
 class FuelType(Base):
     __tablename__ = "FuelType"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     averageCO2Emission = Column(Float, nullable=False)
-    
+
     consumptions = relationship("Consumption", back_populates="fuel_type")
+
 
 # Unit Model
 class Unit(Base):
     __tablename__ = "Unit"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    
+
     consumptions = relationship("Consumption", back_populates="unit")
+
 
 # Consumption Model
 class Consumption(Base):
     __tablename__ = "Consumption"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float, nullable=False)
     startDate = Column(Date, nullable=False)
@@ -125,7 +134,7 @@ class Consumption(Base):
     activityTypeId = Column(Integer, ForeignKey("ActivityType.id"))
     fuelTypeId = Column(Integer, ForeignKey("FuelType.id"), nullable=False)
     unitId = Column(Integer, ForeignKey("Unit.id"))
-    
+
     user = relationship("User", back_populates="consumptions")
     project = relationship("Project", back_populates="consumptions")
     activity_type = relationship("ActivityType", back_populates="consumptions")

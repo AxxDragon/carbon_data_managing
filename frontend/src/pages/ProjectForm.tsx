@@ -2,168 +2,190 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 
+// Interface to define the structure of Project data
 interface ProjectSubmit {
-    id?: number;
-    name: string;
-    startDate: string;
-    endDate?: string | null;
-    companyId: number;
+  id?: number;
+  name: string;
+  startDate: string;
+  endDate?: string | null;
+  companyId: number;
 }
 
+// Props type defining the input properties for the ProjectForm component
 interface Props {
-    project?: ProjectSubmit & { company?: string };
-    onSave: () => void;
-    onCancel: () => void;
+  project?: ProjectSubmit & { company?: string }; // Optional property for an existing project (to edit)
+  onSave: () => void; // Callback function when the project is successfully saved
+  onCancel: () => void; // Callback function when the form is canceled
 }
 
+// ProjectForm component for creating or editing a project
 const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
-    const { user } = useAuth();
-    const [name, setName] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState<string | null>("");
-    const [companyId, setCompanyId] = useState<number | "">("");
-    const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
-    const [companyAdminCompanyId, setCompanyAdminCompanyId] = useState<number | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const { user } = useAuth(); // Retrieve the current authenticated user context
+  const [name, setName] = useState(""); // State for the project name
+  const [startDate, setStartDate] = useState(""); // State for the start date
+  const [endDate, setEndDate] = useState<string | null>(""); // State for the optional end date
+  const [companyId, setCompanyId] = useState<number | "">(""); // State for the associated company ID
+  const [companies, setCompanies] = useState<{ id: number; name: string }[]>(
+    []
+  ); // State to store the list of companies
+  const [companyAdminCompanyId, setCompanyAdminCompanyId] = useState<
+    number | null
+  >(null); // State for the company ID of a company admin
+  const [loading, setLoading] = useState(false); // State for tracking loading status
+  const [error, setError] = useState(""); // State to store any error message
 
-    // Fetch companyId for companyadmins
-    useEffect(() => {
-        if (user?.role === "companyadmin") {
-            api.get("/users/me", {
-                headers: { Authorization: `Bearer ${user?.token}` },
-            })
-                .then((res) => setCompanyAdminCompanyId(res.data.companyId))
-                .catch((error) => console.error("Error fetching user data", error));
-        }
-    }, [user]);
+  // Fetch companyId for companyadmins
+  useEffect(() => {
+    // Only fetch if the user is a company admin
+    if (user?.role === "companyadmin") {
+      api
+        .get("/users/me", {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        })
+        .then((res) => setCompanyAdminCompanyId(res.data.companyId)) // Set the companyId for company admin
+        .catch((error) => console.error("Error fetching user data", error)); // Log error if fetching fails
+    }
+  }, [user]);
 
-    // Fetch companies (only for admins)
-    useEffect(() => {
-        if (user?.role === "admin") {
-            api.get("/options/companies").then((res) => {
-                setCompanies(res.data);
-            });
-        }
-    }, [user]);
+  // Fetch the list of companies for admins
+  useEffect(() => {
+    // Only fetch if the user is an admin
+    if (user?.role === "admin") {
+      api.get("/options/companies").then((res) => {
+        setCompanies(res.data); // Set the list of companies
+      });
+    }
+  }, [user]);
 
-    // Set initial form values
-    useEffect(() => {
-        if (project) {
-            setName(project.name);
-            setStartDate(project.startDate);
-            setEndDate(project.endDate || "");
-            if (user?.role === "admin") {
-                const foundCompany = companies.find((c) => c.name === project.company);
-                setCompanyId(foundCompany ? foundCompany.id : "");
-            } else {
-                setCompanyId(companyAdminCompanyId || ""); // companyadmin gets their company ID
-            }
-        } else {
-            setName("");
-            setStartDate("");
-            setEndDate("");
-            setCompanyId(user?.role === "admin" ? "" : companyAdminCompanyId || ""); // Default for admins: empty, companyadmins: their ID
-        }
-    }, [project, user, companyAdminCompanyId, companies]);
+  // Set initial form values if editing an existing project
+  useEffect(() => {
+    if (project) {
+      setName(project.name); // Set the name field
+      setStartDate(project.startDate); // Set the start date field
+      setEndDate(project.endDate || ""); // Set the end date field (default to empty if null)
+      // If the user is an admin, find the company associated with the project and set it
+      if (user?.role === "admin") {
+        const foundCompany = companies.find((c) => c.name === project.company);
+        setCompanyId(foundCompany ? foundCompany.id : ""); // Set the company ID
+      } else {
+        setCompanyId(companyAdminCompanyId || ""); // Company admin gets their own company ID
+      }
+    } else {
+      // Reset fields when creating a new project
+      setName("");
+      setStartDate("");
+      setEndDate("");
+      setCompanyId(user?.role === "admin" ? "" : companyAdminCompanyId || "");
+    }
+  }, [project, user, companyAdminCompanyId, companies]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
+  // Handle form submission for creating or updating a project
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    setLoading(true); // Set loading state while saving the project
+    setError(""); // Clear any previous error messages
 
-        const method = project ? "put" : "post";
-        const url = project ? `/projects/${project.id}` : "/projects";
+    // Determine whether to use POST or PUT based on whether the project exists
+    const method = project ? "put" : "post";
+    const url = project ? `/projects/${project.id}` : "/projects"; // Set the URL for the API request
 
-        const formattedEndDate = endDate && endDate.trim() !== "" ? endDate : null;
-        const data: ProjectSubmit = {
-            name,
-            startDate,
-            endDate: formattedEndDate,
-            companyId: Number(companyId),
-        };
+    // Format end date to null if it's empty or whitespace
+    const formattedEndDate = endDate && endDate.trim() !== "" ? endDate : null;
 
-        try {
-            await api[method](url, data, {
-                headers: { Authorization: `Bearer ${user?.token}` },
-            });
-            onSave();
-        } catch (error) {
-            setError("Failed to save project. Please try again.");
-        }
-
-        setLoading(false);
+    // Prepare the data to send in the request
+    const data: ProjectSubmit = {
+      name,
+      startDate,
+      endDate: formattedEndDate,
+      companyId: Number(companyId),
     };
 
-    return (
-        <form onSubmit={handleSubmit} className="p-3">
-            <div className="d-flex flex-wrap gap-2">
-                <div className="flex-fill">
-                    <label>Project Name:</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="form-control"
-                        required
-                    />
-                </div>
+    try {
+      // Make the API call to save the project
+      await api[method](url, data, {
+        headers: { Authorization: `Bearer ${user?.token}` }, // Include the user token for authorization
+      });
+      onSave(); // Call the onSave function to notify the parent component that the project has been saved
+    } catch (error) {
+      setError("Failed to save project. Please try again."); // Set error message if the API request fails
+    }
 
-                <div className="flex-fill">
-                    <label>Start Date:</label>
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="form-control"
-                        required
-                    />
-                </div>
+    setLoading(false); // Reset loading state after the request
+  };
 
-                <div className="flex-fill">
-                    <label>End Date:</label>
-                    <input
-                        type="date"
-                        value={endDate || ""}
-                        onChange={(e) => setEndDate(e.target.value || null)}
-                        className="form-control"
-                    />
-                </div>
+  return (
+    <form onSubmit={handleSubmit} className="p-3">
+      <div className="d-flex flex-wrap gap-2">
+        <div className="flex-fill">
+          <label>Project Name:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)} // Update name state on input change
+            className="form-control"
+            required
+          />
+        </div>
 
-                {user?.role === "admin" && companies.length > 0 && (
-                    <div className="flex-fill">
-                        <label>Company:</label>
-                        <select
-                            value={companyId}
-                            onChange={(e) => setCompanyId(Number(e.target.value))}
-                            className="form-select"
-                            required
-                        >
-                            <option value="" disabled>
-                                Select a company
-                            </option>
-                            {companies.map((company) => (
-                                <option key={company.id} value={company.id}>
-                                    {company.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-            </div>
+        <div className="flex-fill">
+          <label>Start Date:</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)} // Update start date state on input change
+            className="form-control"
+            required
+          />
+        </div>
 
-            {error && <p className="text-danger">{error}</p>}
+        <div className="flex-fill">
+          <label>End Date:</label>
+          <input
+            type="date"
+            value={endDate || ""}
+            onChange={(e) => setEndDate(e.target.value || null)} // Update end date state on input change
+            className="form-control"
+          />
+        </div>
 
-            <div className="d-flex justify-content-between mt-3">
-                <button type="submit" disabled={loading} className="btn btn-primary">
-                    {loading ? "Saving..." : "Save Project"}
-                </button>
-                <button type="button" onClick={onCancel} className="btn btn-secondary">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    );
+        {/* Only show company select if the user is an admin and there are companies to choose from */}
+        {user?.role === "admin" && companies.length > 0 && (
+          <div className="flex-fill">
+            <label>Company:</label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(Number(e.target.value))} // Update company ID state on selection change
+              className="form-select"
+              required
+            >
+              <option value="" disabled>
+                Select a company
+              </option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Display error message if any error occurs during the save process */}
+      {error && <p className="text-danger">{error}</p>}
+
+      <div className="d-flex justify-content-between mt-3">
+        {/* Submit button for saving the project */}
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading ? "Saving..." : "Save Project"}
+        </button>
+        {/* Cancel button to cancel the form */}
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
 };
 
 export default ProjectForm;
