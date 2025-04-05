@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../utils/api";  // Corrected import
+import api from "../utils/api";
 
 interface UserSubmit {
   id: number;

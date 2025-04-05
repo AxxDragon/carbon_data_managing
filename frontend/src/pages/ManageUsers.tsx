@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../utils/api"; // Corrected import
+import api from "../utils/api";
 import UserForm from "./UserForm";
 
 type User = {
@@ -73,14 +73,14 @@ const ManageUsers = () => {
     }
   };
 
-  // 🔍 Search filter
+  // Search filter
   const filteredUsers = users.filter((u) =>
     `${u.firstName} ${u.lastName} ${u.email} ${u.role}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  // 🔀 Sorting logic
+  // Sorting logic
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const valueA = a[sortConfig.key] ?? "";
@@ -95,10 +95,10 @@ const ManageUsers = () => {
     return 0;
   });
 
-  // 📄 Pagination logic
+  // Pagination logic
   const paginatedUsers = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // 🔼 Toggle sorting
+  // Toggle sorting
   const toggleSort = (key: keyof User) => {
     setSortConfig((prev) => ({
       key,

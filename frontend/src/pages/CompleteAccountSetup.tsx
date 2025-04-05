@@ -89,7 +89,7 @@ const CompleteAccountSetup = () => {
             className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyUp={handlePasswordChange} // <-- Updated
+            onKeyUp={handlePasswordChange}
             required
         />
           {capsLockOn && <p className="text-warning small mt-1">Warning: Caps Lock is ON!</p>}

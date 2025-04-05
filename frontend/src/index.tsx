@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 const RootComponent = () => {
   const { updateToken } = useAuth();
-  const initialized = useRef(false); // 👈 Add a ref to prevent double execution
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current) {

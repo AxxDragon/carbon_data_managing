@@ -76,12 +76,12 @@ const InviteUser = () => {
     }
   };
 
-  // 🔍 Search filter
+  // Search filter
   const filteredInvites = invites.filter((invite) =>
     `${invite.firstName} ${invite.lastName} ${invite.email}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 🔀 Sorting logic
+  // Sorting logic
   const sortedInvites = [...filteredInvites].sort((a, b) => {
     if (!sortConfig.key) return 0;
   
@@ -104,10 +104,10 @@ const InviteUser = () => {
     return 0;
   });
 
-  // 📄 Pagination logic
+  // Pagination logic
   const paginatedInvites = sortedInvites.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // 🔼 Toggle sorting
+  // Toggle sorting
   const toggleSort = (key: keyof Invite | "company") => {
     setSortConfig((prev) => ({
       key,

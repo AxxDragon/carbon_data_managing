@@ -31,12 +31,12 @@ export const setupInterceptors = (updateToken: (token: string) => void) => {
     (response) => response,
     async (error) => {
       if (error.response?.status === 401) {
-        console.log("Access token expired, attempting refresh...");
+        // console.log("Access token expired, attempting refresh...");
 
         if (!isRefreshing) {
           isRefreshing = true;
           try {
-            console.log("Attempting refresh...");
+            // console.log("Attempting refresh...");
 
             const refreshRequest = api.post("/auth/refresh");
 
@@ -71,13 +71,13 @@ export const setupInterceptors = (updateToken: (token: string) => void) => {
 
             return api(error.config);
           } catch (refreshError) {
-            console.log("Refresh failed, logging out...");
+            // console.log("Refresh failed, logging out...");
             localStorage.removeItem("user"); // Clear storage
             window.location.href = "/timeout"; // Redirect to timeout page
             return Promise.reject(refreshError);
           }
         } else {
-          console.log("Refresh in process, queing request...");
+          // console.log("Refresh in process, queing request...");
 
           return new Promise((resolve) => {
             refreshSubscribers.push((token) => {

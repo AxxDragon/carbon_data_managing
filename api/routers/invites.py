@@ -5,7 +5,7 @@ from models import Invite, User
 from schemas import InviteSchema, InviteSubmitSchema
 from security import generate_invite_token, get_current_user
 from datetime import datetime, timedelta
-from utils.email_utils import send_invite_email  # Utility for sending emails
+from utils.email_utils import send_invite_email
 
 router = APIRouter()
 

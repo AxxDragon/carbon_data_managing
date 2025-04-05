@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from "../utils/api"; // Corrected import
+import api from "../utils/api";
 
 interface Option {
     id?: number;
@@ -44,7 +44,7 @@ const OptionForm: React.FC<Props> = ({ category, option, onSave, onCancel }) => 
         }
 
         try {
-            await api[method](endpoint, data);  // Use api instance instead of axios
+            await api[method](endpoint, data);
             onSave();
         } catch (error) {
             console.error("Error submitting option:", error);

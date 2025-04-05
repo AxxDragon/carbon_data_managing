@@ -15,8 +15,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "42"
 REFRESH_SECRET_KEY = "23"  # Different key for refresh tokens!
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Shorter expiry for security
-REFRESH_TOKEN_EXPIRE_DAYS = 7  # Refresh token expiry
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
@@ -71,7 +71,7 @@ def refresh_access_token(refresh_token: str):
         # Generate a new access token
         new_access_token = create_access_token({"sub": str(user_id)})
 
-        # Generate a new refresh token (optional but recommended)
+        # Generate a new refresh token
         new_refresh_token = create_refresh_token({"sub": str(user_id)})
 
         return new_access_token, new_refresh_token

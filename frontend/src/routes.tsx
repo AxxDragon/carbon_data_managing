@@ -12,18 +12,20 @@ import ManageProjects from "./pages/ManageProjects";
 import ManageOptions from "./pages/ManageOptions";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout"; 
-import CompleteAccountSetup from "./pages/CompleteAccountSetup"; // Add this import
+import CompleteAccountSetup from "./pages/CompleteAccountSetup";
 
 const AppRoutes = () => {
   const { user } = useAuth();
   return (
     <Router>
       <Routes>
-        {/* Routes for everyone (not logged in yet) */}
+        {/* Routes for everyone (not logged in yet, or any more) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/timeout" element={<TimeoutPage />} />
-        <Route path="/complete-account-setup/:inviteToken" element={<CompleteAccountSetup />} /> {/* Account setup route */}
+
+        {/* Account setup route */}
+        <Route path="/complete-account-setup/:inviteToken" element={<CompleteAccountSetup />} />
 
         {/* Routes requiring authentication */}
         <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>

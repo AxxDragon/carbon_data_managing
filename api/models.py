@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float, DateTim
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import date, datetime, timedelta, timezone
-import uuid
 
 # Company Model
 class Company(Base):
@@ -25,7 +24,7 @@ class Invite(Base):
     role = Column(String, nullable=False)
     companyId = Column(Integer, ForeignKey("Company.id"), nullable=False)
     inviteToken = Column(String, unique=True, nullable=False)  # Secure token for setup
-    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))  # Now timezone-aware
+    createdAt = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     company = relationship("Company")  # Link to company
 
@@ -124,7 +123,7 @@ class Consumption(Base):
     userId = Column(Integer, ForeignKey("User.id"))
     projectId = Column(Integer, ForeignKey("Project.id"))
     activityTypeId = Column(Integer, ForeignKey("ActivityType.id"))
-    fuelTypeId = Column(Integer, ForeignKey("FuelType.id"), nullable=True)  # Nullable if not fuel-related
+    fuelTypeId = Column(Integer, ForeignKey("FuelType.id"), nullable=False)
     unitId = Column(Integer, ForeignKey("Unit.id"))
     
     user = relationship("User", back_populates="consumptions")

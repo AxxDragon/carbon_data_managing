@@ -55,14 +55,14 @@ const ManageProjects = () => {
     }
   };
 
-  // 🔍 Search filter
+  // Search filter
   const filteredProjects = projects.filter((p) =>
     `${p.name} ${p.company} ${p.status}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  // 🔀 Sorting logic
+  // Sorting logic
   const sortedProjects = [...filteredProjects].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const valueA = a[sortConfig.key] ?? "";
@@ -77,10 +77,10 @@ const ManageProjects = () => {
     return 0;
   });
 
-  // 📄 Pagination logic
+  // Pagination logic
   const paginatedProjects = sortedProjects.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // 🔼 Toggle sorting
+  // Toggle sorting
   const toggleSort = (key: keyof Project) => {
     setSortConfig((prev) => ({
       key,

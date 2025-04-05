@@ -51,14 +51,14 @@ const ConsumptionList = () => {
       .catch((err) => console.error("Error deleting entry:", err));
   };
 
-  // 🔍 Search filter
+  // Search filter
   const filteredConsumptions = consumptions.filter((c) =>
     `${c.project} ${c.activityType} ${c.user_first_name} ${c.user_last_name} ${c.company}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  // 🔀 Sorting logic with numbers, dates, and text
+  // Sorting logic with numbers, dates, and text
   const sortedConsumptions = [...filteredConsumptions].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const key = sortConfig.key;
@@ -91,10 +91,10 @@ const ConsumptionList = () => {
     return sortConfig.direction === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
   });
 
-  // 📄 Pagination logic
+  // Pagination logic
   const paginatedConsumptions = sortedConsumptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // 🔼 Toggle sorting
+  // Toggle sorting
   const toggleSort = (key: keyof Consumption | "time" | "user") => {
     setSortConfig((prev) => ({
       key,
