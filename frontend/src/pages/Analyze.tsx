@@ -163,8 +163,8 @@ const Analyze = () => {
         cumulativeSums[fuelTypeLabel] += dailyAmount;
         cumulativeCO2 += dailyCO2;
   
-        dataEntry[fuelTypeLabel] = cumulativeSums[fuelTypeLabel];
-        dataEntry["Total CO₂"] = cumulativeCO2;
+        dataEntry[fuelTypeLabel] = parseFloat(cumulativeSums[fuelTypeLabel].toFixed(3));
+        dataEntry["Total CO₂"] = parseFloat(cumulativeCO2.toFixed(3));
   
         tempDate.setDate(tempDate.getDate() + 1);
       }
