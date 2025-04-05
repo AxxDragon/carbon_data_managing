@@ -12,6 +12,7 @@
 /build
 
 # Misc
+.bla.py
 .DS_Store
 .env.local
 .env.development.local
@@ -25,7 +26,7 @@ yarn-error.log*
 
 # Python
 *.pyc
-api/__pycache__/
+**/__pycache__/
 *.pyo
 *.pyd
 env/
