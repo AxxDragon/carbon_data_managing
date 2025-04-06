@@ -6,10 +6,29 @@ services:
     container_name: backend
     volumes:
       - ./api:/app
-      - ./carbon_data.db:/carbon_data.db   # mount DB file into container
+      - ./carbon_data.db:/carbon_data.db
     ports:
       - "8000:8000"
     working_dir: /app
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
     environment:
       - PYTHONUNBUFFERED=1
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # prevents host node_modules from overriding container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # allows hot-reloading to work inside Docker
+      - REACT_APP_API_URL=http://localhost:8000
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "8025:8025"   # Web UI
+      - "1025:1025"   # SMTP server

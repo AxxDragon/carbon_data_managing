@@ -2,7 +2,7 @@ import smtplib
 from email.message import EmailMessage
 
 # MailHog SMTP Configuration
-SMTP_SERVER = "localhost"
+SMTP_SERVER = "mailhog"
 SMTP_PORT = 1025  # MailHog's default SMTP port
 
 SENDER_EMAIL = "no-reply@example.com"
