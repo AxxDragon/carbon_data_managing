@@ -48,7 +48,7 @@ const Header = () => {
             {/* Title of the application */}
             <h1 className="mb-0 fw-bold">CARMA</h1>
             <p className="mb-0 small text-light">Carbon emission data</p>
-            <p className="mb-0 small text-light">Managing tool</p>
+            <p className="mb-0 small text-light">Management tool</p>
           </div>
         </div>
 

@@ -68,6 +68,17 @@ def login(login_data: LoginSchema, response: Response, db: Session = Depends(get
     }
 
 
+@router.post("/logout")
+def logout(response: Response):
+    """
+    Log out the user and clear the refresh token cookie.
+    """
+    # Clear the refresh token cookie
+    response.delete_cookie("refresh_token", httponly=True, secure=True, samesite="Lax")
+
+    return {"message": "Successfully logged out"}
+
+
 @router.post("/refresh")
 def refresh_token(request: Request, response: Response):
     """

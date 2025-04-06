@@ -383,35 +383,31 @@ const Analyze = () => {
             <>
               <div className="list-group mb-3">
                 {paginatedItems.map((item) => (
-                  <button
-                    key={item.id}
+                  <li
+                    key={`${"company" in item ? "company" : "project"}-${
+                      item.id
+                    }`}
+                    style={{ cursor: "pointer" }}
                     onClick={() => handleSelection(item)} // Select project or company
                     className="list-group-item list-group-item-action"
                   >
                     {getDisplayName(item)}
-                  </button>
+                  </li>
                 ))}
               </div>
               {/* Pagination controls */}
-              <div className="d-flex justify-content-between">
+              <div className="d-flex mt-3">
                 <button
-                  className="btn btn-link"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  className="btn btn-secondary me-1"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
                 >
                   Previous
                 </button>
                 <button
-                  className="btn btn-link"
-                  onClick={() =>
-                    setCurrentPage((prev) =>
-                      Math.min(
-                        prev + 1,
-                        Math.ceil(filteredItems.length / itemsPerPage)
-                      )
-                    )
-                  }
+                  className="btn btn-secondary"
+                  disabled={currentPage * itemsPerPage >= filteredItems.length}
+                  onClick={() => setCurrentPage(currentPage + 1)}
                 >
                   Next
                 </button>

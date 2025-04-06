@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import api from "../utils/api";
 
 // User type interface to define the structure of the user object
 interface User {
@@ -40,13 +41,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Login function to update user state and store it in localStorage
   const login = (userData: { token: string; user: User }) => {
+    // Clear any previous data just in case
+    localStorage.removeItem("user");
+    setUser(null);
+
     const fullUser: User = { ...userData.user, token: userData.token }; // Combine user data with token
     setUser(fullUser); // Update state with the full user object
     localStorage.setItem("user", JSON.stringify(fullUser)); // Store user data in localStorage
   };
 
   // Logout function to clear user state and remove data from localStorage
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout"); // Axios handles credentials if configured
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    }
     setTimeout(() => {
       setUser(null); // Reset user state
       localStorage.removeItem("user"); // Remove user data from localStorage

@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./api
+    container_name: backend
+    volumes:
+      - ./api:/app
+      - ./carbon_data.db:/carbon_data.db   # mount DB file into container
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - PYTHONUNBUFFERED=1
