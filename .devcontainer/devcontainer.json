@@ -1,0 +1,36 @@
+{
+  "name": "carbon-data-managing-dev",
+  "dockerComposeFile": [
+    "../docker-compose.yml"  // Reference your docker-compose.yml
+  ],
+  "service": "backend",  // Use 'backend' as the primary service container to control the dev environment
+  "workspaceFolder": "/app",  // This should match the folder you want VS Code to use inside the container
+  "runServices": [
+    "backend",
+    "frontend",
+    "mailhog"  // List all the services you want to start
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",  // Add ESLint extension for frontend (React)
+        "msjsdiag.vscode-react-native"  // React Native/JS support
+      ],
+      "settings": {
+        "python.analysis.autoSearchPaths": true,
+        "python.analysis.useLibraryCodeForTypes": true,
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "editor.formatOnSave": true,  // Enable format on save for better code consistency
+        "eslint.alwaysShowStatus": true
+      }
+    }
+  },
+  "postCreateCommand": "pip install -r ./api/requirements.txt || true",  // Run post-create command to install Python dependencies
+  "remoteUser": "root",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/app,type=bind"  // Mount entire local workspace into the container for easy access
+  ]
+}
