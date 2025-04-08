@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from api.database import engine, SessionLocal, Base
+from database import engine, SessionLocal, Base
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import (
+from routers import (
     auth,
     consumption,
     invites,
