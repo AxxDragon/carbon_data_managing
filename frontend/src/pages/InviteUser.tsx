@@ -221,7 +221,7 @@ const InviteUser = () => {
               >
                 Created {getArrowIndicator("createdAt")}
               </th>
-              <th>Actions</th>{" "}
+              <th>Actions</th>
               {/* Actions column for Edit, Resend, and Delete */}
             </tr>
           </thead>

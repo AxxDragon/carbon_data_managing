@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User
-from schemas import LoginSchema
-from security import (
+from api.database import get_db
+from api.models import User
+from api.schemas import LoginSchema
+from api.security import (
     verify_password,
     create_access_token,
     create_refresh_token,
     refresh_access_token,
 )
 from fastapi.security import OAuth2PasswordBearer
-from logging_config import logger
+from api.logging_config import logger
 
 # Create a new API router instance for handling authentication-related routes
 router = APIRouter()
@@ -31,6 +31,11 @@ def login(login_data: LoginSchema, response: Response, db: Session = Depends(get
     """
     # Fetch the user from the database by email
     user = db.query(User).filter(User.email == login_data.email).first()
+
+    print("Login payload:", login_data)
+    print("User found:", User)
+    print("user found:", user)
+    print("Password valid:", verify_password(login_data.password, user.passwordhash) if user else None)
 
     # Check if user exists and password is valid
     if not user or not verify_password(login_data.password, user.passwordhash):

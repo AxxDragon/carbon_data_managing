@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
 
@@ -25,8 +25,7 @@ class ConsumptionSchema(BaseModel):
     user_last_name: str  # Resolved User's last name
     company: str  # Resolved Company name
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ConsumptionSubmitSchema(BaseModel):
@@ -68,8 +67,7 @@ class ProjectSchema(BaseModel):
     companyId: int
     company: str  # Resolved Company name
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProjectSubmitSchema(BaseModel):
@@ -90,8 +88,7 @@ class UserSchema(BaseModel):
     company: Optional[str] = None  # Resolved Company name
     projects: List[int] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserSubmitSchema(BaseModel):
@@ -109,8 +106,7 @@ class InviteSchema(BaseModel):
     inviteToken: str
     createdAt: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class InviteSubmitSchema(BaseModel):

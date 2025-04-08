@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from models import Invite, User
-from schemas import InviteSchema, InviteSubmitSchema
-from security import generate_invite_token, get_current_user
+from api.database import get_db
+from api.models import Invite, User
+from api.schemas import InviteSchema, InviteSubmitSchema
+from api.security import generate_invite_token, get_current_user
 from datetime import datetime, timedelta
-from utils.email_utils import send_invite_email
+from api.utils.email_utils import send_invite_email
 
 router = APIRouter()
 

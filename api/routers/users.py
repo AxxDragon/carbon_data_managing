@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
-from database import get_db
-from models import User, Company, Project, User_Project, Invite
-from schemas import UserSchema, UserSubmitSchema
-from security import get_current_user, hash_password
+from api.database import get_db
+from api.models import User, Company, Project, User_Project, Invite
+from api.schemas import UserSchema, UserSubmitSchema
+from api.security import get_current_user, hash_password
 from typing import List
 from pydantic import BaseModel
 

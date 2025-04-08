@@ -1,9 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from models import User
-from database import engine, SessionLocal, Base
+from fastapi import FastAPI
+from api.database import engine, SessionLocal, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routers import (
+from api.routers import (
     auth,
     consumption,
     invites,
@@ -42,12 +40,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-# Define an endpoint to retrieve a user by ID
-@app.get("/users/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"user": f"{db_user.firstName} {db_user.lastName}"}
