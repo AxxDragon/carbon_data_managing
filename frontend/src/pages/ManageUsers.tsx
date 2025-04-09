@@ -208,7 +208,7 @@ const ManageUsers = () => {
             {/* Render paginated users */}
             {paginatedUsers.map((u) => (
               <tr key={u.id}>
-                {user?.role === "admin" && <td>{u.company}</td>}{" "}
+                {user?.role === "admin" && <td>{u.company}</td>}
                 {/* Display company for admin */}
                 <td>
                   {u.firstName} {u.lastName}

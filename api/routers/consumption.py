@@ -101,9 +101,7 @@ def create_consumption(
     """Users can only create consumptions for projects they are part of.
     Company admins can create entries for any project in their company.
     """
-    print(f"Received projectId: {data.projectId}")
     project = db.query(Project).filter(Project.id == data.projectId).first()
-    print(f"project: {project}")
 
     # If project doesn't exist, deny the request
     if not project:

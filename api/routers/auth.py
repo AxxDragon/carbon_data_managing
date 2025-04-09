@@ -46,6 +46,8 @@ def login(login_data: LoginSchema, response: Response, db: Session = Depends(get
         }
     )
 
+    print("access_token: ", access_token)
+
     refresh_token = create_refresh_token({"sub": str(user.id)})
 
     # Set refresh token in secure, HttpOnly cookie to mitigate XSS attacks
@@ -90,6 +92,8 @@ def refresh_token(request: Request, response: Response):
     - Returns the new access token in the response body.
     """
     refresh_token = request.cookies.get("refresh_token")
+
+    print("refresh_token: ", refresh_token)
 
     if not refresh_token:
         logger.warning("No refresh token found in cookies")
