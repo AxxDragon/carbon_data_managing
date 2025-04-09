@@ -1,6 +1,6 @@
 import pytest
 from datetime import date, datetime
-from api.schemas import (
+from schemas import (
     LoginSchema,
     ConsumptionSchema,
     ConsumptionSubmitSchema,

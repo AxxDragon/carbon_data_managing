@@ -1,9 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
-from api.app import app
-from api.models import User
-from api.database import get_db
+from app import app
+from models import User
+from database import get_db
 
 client = TestClient(app)
 

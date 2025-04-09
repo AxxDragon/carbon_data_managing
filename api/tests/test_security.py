@@ -4,8 +4,8 @@ from jose import jwt
 from fastapi import HTTPException, status
 from unittest.mock import MagicMock, patch
 
-from api import security
-from api.models import User
+import security
+from models import User
 
 # -------------------- Fixtures --------------------
 
