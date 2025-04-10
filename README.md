@@ -15,8 +15,8 @@ CARMA helps companies track and manage their carbon-emission-producing resource 
 
 ### 🐳 Getting Started with Docker
 
-1. Install Docker Desktop  
-2. Clone the repo  
+1. Clone the repo  
+2. Install and run Docker Desktop  
 3. Run:
 
     docker-compose up --build

@@ -188,11 +188,11 @@ const ManageProjects = () => {
             {/* Render the projects as rows in the table */}
             {paginatedProjects.map((p) => (
               <tr key={p.id}>
-                {user?.role === "admin" && <td>{p.company}</td>}{" "}
+                {user?.role === "admin" && <td>{p.company}</td>}
                 {/* Only show company for admin */}
                 <td>{p.name}</td>
                 <td>{p.startDate}</td>
-                <td>{p.endDate || "N/A"}</td>{" "}
+                <td>{p.endDate || "N/A"}</td>
                 {/* Display "N/A" if end date is null */}
                 <td>{p.status}</td>
                 <td>
