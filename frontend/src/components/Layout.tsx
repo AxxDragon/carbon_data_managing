@@ -10,7 +10,7 @@ const Layout = () => {
       <Header />
 
       {/* Main content area where the nested routes will be rendered */}
-      <div className="flex-grow-1" style={{ marginTop: "120px" }}>
+      <div className="flex-grow-1" style={{ marginTop: "120px" }} role="main">
         {/* Outlet renders the matching child route for the current path */}
         <Outlet />
       </div>

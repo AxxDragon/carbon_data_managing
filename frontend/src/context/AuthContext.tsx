@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import api from "../utils/api";
 
 // User type interface to define the structure of the user object
-interface User {
+export interface User {
   id: number;
   email: string;
   role: "user" | "companyadmin" | "admin";
@@ -11,7 +11,7 @@ interface User {
 }
 
 // AuthContextType defines the shape of the context for user authentication
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   login: (userData: { token: string; user: User }) => void;
   logout: () => void;
@@ -19,7 +19,7 @@ interface AuthContextType {
 }
 
 // Create a context with an undefined initial value, to be provided by AuthProvider
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // AuthProvider component to wrap the application and provide auth-related values
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
