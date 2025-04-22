@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Create an Axios instance with base URL and credentials configuration
-const api = axios.create({
+export const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000", // Base URL for API requests
   withCredentials: true, // Ensure cookies (like session cookies) are sent with requests
 });
