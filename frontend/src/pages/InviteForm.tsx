@@ -100,8 +100,9 @@ const InviteForm: React.FC<InviteFormProps> = ({
       <div className="d-flex flex-wrap gap-2">
         {/* First Name Input */}
         <div className="flex-fill">
-          <label>First Name:</label>
+          <label htmlFor="firstName">First Name:</label>
           <input
+            id="firstName"
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)} // Update first name
@@ -112,8 +113,9 @@ const InviteForm: React.FC<InviteFormProps> = ({
 
         {/* Last Name Input */}
         <div className="flex-fill">
-          <label>Last Name:</label>
+          <label htmlFor="lastName">Last Name:</label>
           <input
+            id="lastName"
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)} // Update last name
@@ -124,8 +126,9 @@ const InviteForm: React.FC<InviteFormProps> = ({
 
         {/* Email Input */}
         <div className="flex-fill">
-          <label>Email:</label>
+          <label htmlFor="email">Email:</label>
           <input
+            id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)} // Update email
@@ -139,8 +142,9 @@ const InviteForm: React.FC<InviteFormProps> = ({
           <>
             {/* Role Selection */}
             <div className="flex-fill">
-              <label>Role:</label>
+              <label htmlFor="role">Role:</label>
               <select
+                id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)} // Update role
                 className="form-select"
@@ -153,8 +157,9 @@ const InviteForm: React.FC<InviteFormProps> = ({
 
             {/* Company Selection */}
             <div className="flex-fill">
-              <label>Company:</label>
+              <label htmlFor="company">Company:</label>
               <select
+                id="company"
                 value={companyId ?? ""} // Use `companyId` if available, otherwise default to empty string
                 onChange={(e) => setCompanyId(Number(e.target.value))} // Update company ID
                 className="form-select"
