@@ -13,9 +13,9 @@ describe("Layout", () => {
   test("renders Header, Footer, and Outlet", () => {
     // Use renderWithAuth to wrap Layout with AuthContext and MemoryRouter.
     // Override the default user to have the email "layoutuser@example.com"
-    renderWithAuth(<Layout />, { 
+    renderWithAuth(<Layout />, {
       userOverrides: { email: "layoutuser@example.com", role: "user" },
-      route: "/" 
+      route: "/",
     });
 
     // Check that the outlet content is rendered

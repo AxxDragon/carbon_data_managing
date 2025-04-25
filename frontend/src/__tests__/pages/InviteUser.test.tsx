@@ -78,10 +78,7 @@ describe("InviteUser Page", () => {
     renderWithAuthOnly(<InviteUser />, { userOverrides: { role: "admin" } });
     await screen.findByText("Alice Smith");
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/search invites/i),
-      "bob"
-    );
+    await userEvent.type(screen.getByPlaceholderText(/search invites/i), "bob");
     expect(screen.queryByText("Alice Smith")).not.toBeInTheDocument();
     expect(screen.getByText("Bob Jones")).toBeInTheDocument();
   });
@@ -116,9 +113,7 @@ describe("InviteUser Page", () => {
     await screen.findByText("Manage Invites");
 
     // click the "Create Invite" button
-    fireEvent.click(
-      screen.getByRole("button", { name: /create invite/i })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /create invite/i }));
 
     // find the Send Invitation button, then scope queries to its form
     const sendBtn = await screen.findByRole("button", {
@@ -139,9 +134,7 @@ describe("InviteUser Page", () => {
     await screen.findByText("Alice Smith");
 
     // click the "Edit" button next to the first invite
-    fireEvent.click(
-      screen.getAllByRole("button", { name: /edit/i })[0]
-    );
+    fireEvent.click(screen.getAllByRole("button", { name: /edit/i })[0]);
 
     // then find the form and assert its fields are pre-filled
     const sendBtn = await screen.findByRole("button", {

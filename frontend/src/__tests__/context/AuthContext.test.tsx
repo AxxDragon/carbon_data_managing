@@ -9,7 +9,20 @@ const TestComponent = () => {
   return (
     <div>
       <div data-testid="user-email">{user ? user.email : "No user"}</div>
-      <button onClick={() => login({ token: "new-token", user: { id: 2, email: "test@example.com", role: "user", companyId: 42, token: "" } })}>
+      <button
+        onClick={() =>
+          login({
+            token: "new-token",
+            user: {
+              id: 2,
+              email: "test@example.com",
+              role: "user",
+              companyId: 42,
+              token: "",
+            },
+          })
+        }
+      >
         Login
       </button>
       <button onClick={logout}>Logout</button>
@@ -20,7 +33,7 @@ const TestComponent = () => {
 
 describe("AuthContext", () => {
   beforeEach(() => {
-    jest.spyOn(api, "post").mockResolvedValue({}); 
+    jest.spyOn(api, "post").mockResolvedValue({});
     localStorage.clear();
   });
 
@@ -32,7 +45,9 @@ describe("AuthContext", () => {
     };
 
     // Render without wrapping in AuthProvider should throw an error.
-    expect(() => render(<HookComponent />)).toThrow("useAuth must be used within an AuthProvider");
+    expect(() => render(<HookComponent />)).toThrow(
+      "useAuth must be used within an AuthProvider"
+    );
   });
 
   test("AuthProvider provides context and handles login", async () => {
@@ -52,7 +67,9 @@ describe("AuthContext", () => {
     });
 
     // Now, the user email should be updated.
-    expect(screen.getByTestId("user-email").textContent).toBe("test@example.com");
+    expect(screen.getByTestId("user-email").textContent).toBe(
+      "test@example.com"
+    );
 
     // Also, localStorage should contain the user data.
     const storedUser = localStorage.getItem("user");
@@ -70,19 +87,21 @@ describe("AuthContext", () => {
     await act(async () => {
       screen.getByText("Login").click();
     });
-    expect(screen.getByTestId("user-email").textContent).toBe("test@example.com");
+    expect(screen.getByTestId("user-email").textContent).toBe(
+      "test@example.com"
+    );
 
     // Use fake timers to deal with setTimeout in logout
     jest.useFakeTimers();
-    
+
     screen.getByText("Logout").click();
-    
+
     await act(async () => {
-        await Promise.resolve();
-      });
+      await Promise.resolve();
+    });
 
     await act(() => {
-    jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(150);
     });
 
     expect(screen.getByTestId("user-email").textContent).toBe("No user");

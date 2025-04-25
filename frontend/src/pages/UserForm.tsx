@@ -109,9 +109,10 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
     <form onSubmit={handleSubmit} className="p-3">
       <div className="d-flex flex-wrap gap-2">
         <div className="flex-fill">
-          <label>First Name:</label>
+          <label htmlFor="firstName">First Name:</label>
           <input
             type="text"
+            id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)} // Update state for firstName
             className="form-control"
@@ -120,9 +121,10 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
         </div>
 
         <div className="flex-fill">
-          <label>Last Name:</label>
+          <label htmlFor="lastName">Last Name:</label>
           <input
             type="text"
+            id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)} // Update state for lastName
             className="form-control"
@@ -131,9 +133,10 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
         </div>
 
         <div className="flex-fill">
-          <label>Email:</label>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)} // Update state for email
             className="form-control"
@@ -146,8 +149,9 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
       {authUser?.role === "admin" && (
         <div className="d-flex flex-wrap gap-2">
           <div className="flex-fill">
-            <label>Role:</label>
+            <label htmlFor="role">Role:</label>
             <select
+              id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)} // Update state for role
               className="form-select"
@@ -159,8 +163,9 @@ const UserForm: React.FC<Props> = ({ user, onSave, onCancel }) => {
           </div>
 
           <div className="flex-fill">
-            <label>Company:</label>
+            <label htmlFor="company">Company:</label>
             <select
+              id="company"
               value={companyId}
               onChange={(e) => setCompanyId(Number(e.target.value))} // Update state for companyId
               className="form-select"

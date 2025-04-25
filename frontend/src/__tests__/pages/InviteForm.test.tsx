@@ -27,7 +27,11 @@ describe("InviteForm Component", () => {
 
   it("renders empty form, submits new invite", async () => {
     renderWithAuthOnly(
-      <InviteForm invite={undefined} onInviteSuccess={onSuccess} onCancel={onCancel} />,
+      <InviteForm
+        invite={undefined}
+        onInviteSuccess={onSuccess}
+        onCancel={onCancel}
+      />,
       { userOverrides: { role: "admin" } }
     );
 
@@ -43,18 +47,14 @@ describe("InviteForm Component", () => {
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: "charlie@peanuts.com" },
     });
-    fireEvent.change(
-      screen.getByRole("combobox", { name: /role:/i }),
-      { target: { value: "user" } }
-    );
-    fireEvent.change(
-      screen.getByRole("combobox", { name: /company:/i }),
-      { target: { value: "20" } }
-    );
+    fireEvent.change(screen.getByRole("combobox", { name: /role:/i }), {
+      target: { value: "user" },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: /company:/i }), {
+      target: { value: "20" },
+    });
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /send invitation/i })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /send invitation/i }));
 
     await waitFor(() =>
       expect(api.post).toHaveBeenCalledWith(
@@ -98,9 +98,7 @@ describe("InviteForm Component", () => {
     fireEvent.change(screen.getByLabelText(/last name/i), {
       target: { value: "Van Pelt-Edit" },
     });
-    fireEvent.click(
-      screen.getByRole("button", { name: /send invitation/i })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /send invitation/i }));
 
     // split into two waitFor calls, each with a single assertion
     await waitFor(() =>
@@ -124,7 +122,11 @@ describe("InviteForm Component", () => {
 
   it("calls onCancel when Cancel is clicked", async () => {
     renderWithAuthOnly(
-      <InviteForm invite={undefined} onInviteSuccess={onSuccess} onCancel={onCancel} />,
+      <InviteForm
+        invite={undefined}
+        onInviteSuccess={onSuccess}
+        onCancel={onCancel}
+      />,
       { userOverrides: { role: "admin" } }
     );
 

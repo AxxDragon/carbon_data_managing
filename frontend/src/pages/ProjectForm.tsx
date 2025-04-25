@@ -117,9 +117,10 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
     <form onSubmit={handleSubmit} className="p-3">
       <div className="d-flex flex-wrap gap-2">
         <div className="flex-fill">
-          <label>Project Name:</label>
+          <label htmlFor="projectName">Project Name:</label>
           <input
             type="text"
+            id="projectName"
             value={name}
             onChange={(e) => setName(e.target.value)} // Update name state on input change
             className="form-control"
@@ -128,9 +129,10 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
         </div>
 
         <div className="flex-fill">
-          <label>Start Date:</label>
+          <label htmlFor="projectStartDate">Start Date:</label>
           <input
             type="date"
+            id="projectStartDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)} // Update start date state on input change
             className="form-control"
@@ -139,9 +141,10 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
         </div>
 
         <div className="flex-fill">
-          <label>End Date:</label>
+          <label htmlFor="projectEndDate">End Date:</label>
           <input
             type="date"
+            id="projectEndDate"
             value={endDate || ""}
             onChange={(e) => setEndDate(e.target.value || null)} // Update end date state on input change
             className="form-control"
@@ -151,9 +154,10 @@ const ProjectForm: React.FC<Props> = ({ project, onSave, onCancel }) => {
         {/* Only show company select if the user is an admin and there are companies to choose from */}
         {user?.role === "admin" && companies.length > 0 && (
           <div className="flex-fill">
-            <label>Company:</label>
+            <label htmlFor="projectCompany">Company:</label>
             <select
               value={companyId}
+              id="projectCompany"
               onChange={(e) => setCompanyId(Number(e.target.value))} // Update company ID state on selection change
               className="form-select"
               required

@@ -35,10 +35,14 @@ describe("LogoutPage", () => {
     );
 
     // Check for the heading
-    expect(screen.getByRole("heading", { name: /You have been logged out/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /You have been logged out/i })
+    ).toBeInTheDocument();
 
     // Check for the redirect message
-    expect(screen.getByText(/Redirecting to the login page.../i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Redirecting to the login page.../i)
+    ).toBeInTheDocument();
 
     // Check for the loading spinner
     expect(screen.getByRole("status")).toBeInTheDocument();

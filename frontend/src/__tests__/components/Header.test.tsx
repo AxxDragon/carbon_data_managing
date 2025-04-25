@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import { MemoryRouter } from "react-router-dom";
 // Import the helpers from testUtils.tsx (adjust the relative path as needed)
 import { renderWithAuth, mockUseAuth } from "../../../test-utils/testUtils";
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from "../../context/AuthContext";
 
 // Mock useNavigate from react-router-dom
 const mockedNavigate = jest.fn();
@@ -75,7 +75,13 @@ describe("Header", () => {
     render(
       <AuthContext.Provider
         value={{
-          user: { id: 1, email: "user@example.com", role: "user", companyId: 123, token: "fake-token" },
+          user: {
+            id: 1,
+            email: "user@example.com",
+            role: "user",
+            companyId: 123,
+            token: "fake-token",
+          },
           login: jest.fn(),
           logout: logoutMock,
           updateToken: jest.fn(),
