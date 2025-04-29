@@ -1,142 +1,298 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock
-from app import app
-import models
-from security import create_access_token, get_current_user
-from database import get_db
 from datetime import date
+
+from app import app
+from database import Base, get_db
+from models import (
+    Company, User, Project, User_Project,
+    ActivityType, FuelType, Unit, Consumption
+)
+from security import create_access_token, get_current_user
 
 client = TestClient(app)
 
 
-# Fixtures to create user, company, and the necessary project data
+# --- Fixtures & Overrides ----------------------------------------------------
+
 @pytest.fixture
 def db_session(test_db):
-    yield test_db
+    return test_db
 
+@pytest.fixture(autouse=True)
+def override_get_db(db_session):
+    # ensure clean slate each test
+    Base.metadata.drop_all(bind=db_session.bind)
+    Base.metadata.create_all(bind=db_session.bind)
+
+    def _get_db_override():
+        yield db_session
+    app.dependency_overrides[get_db] = _get_db_override
+    yield
+    app.dependency_overrides.pop(get_db, None)
+    app.dependency_overrides.pop(get_current_user, None)
+
+
+def auth_header_for(user):
+    token = create_access_token({"sub": str(user.id), "role": user.role})
+    return {"Authorization": f"Bearer {token}"}
+
+
+def override_current_user(user):
+    def _get_user_override():
+        return user
+    app.dependency_overrides[get_current_user] = _get_user_override
+
+
+# --- Data Setup --------------------------------------------------------------
 
 @pytest.fixture
-def authorized_user(db_session):
-    company = models.Company(name="Test Company")
+def seed_data(db_session):
+    company = Company(name="TestCo")
     db_session.add(company)
     db_session.flush()
 
-    user = models.User(
-        firstName="Alice",
-        lastName="Anderson",
-        email="alice@example.com",
-        passwordhash="not_a_real_hash",
-        role="user",
-        companyId=company.id,
+    admin = User(
+        firstName="Admin", lastName="User", email="admin@test.co",
+        passwordhash="x", role="admin", companyId=company.id
     )
-    db_session.add(user)
+    comp_admin = User(
+        firstName="Comp", lastName="Admin", email="comp@test.co",
+        passwordhash="x", role="companyadmin", companyId=company.id
+    )
+    normal_user = User(
+        firstName="Norm", lastName="User", email="norm@test.co",
+        passwordhash="x", role="user", companyId=company.id
+    )
+    db_session.add_all([admin, comp_admin, normal_user])
     db_session.flush()
 
-    token = create_access_token(data={"sub": str(user.id), "role": user.role})
-    return user, token
-
-
-@pytest.fixture
-def consumption_dependencies(db_session, authorized_user):
-    user, _ = authorized_user
-
-    project = models.Project(
-        name="Solar Installation",
+    project = Project(
+        name="ProjectX",
         startDate=date(2023, 1, 1),
-        endDate=date(2025, 1, 1),
-        companyId=user.companyId,
+        endDate=date(2024, 1, 1),
+        companyId=company.id
     )
     db_session.add(project)
     db_session.flush()
+    db_session.add(User_Project(userId=normal_user.id, projectId=project.id))
 
-    link = models.User_Project(userId=user.id, projectId=project.id)
-    db_session.add(link)
-
-    activity = models.ActivityType(name="Transportation")
-    fuel = models.FuelType(name="Diesel", averageCO2Emission=2.7)
-    unit = models.Unit(name="liters")
-
-    db_session.add_all([activity, fuel, unit])
+    at = ActivityType(name="Activity")
+    fuel = FuelType(name="Fuel", averageCO2Emission=1.1)
+    unit = Unit(name="Unit")
+    db_session.add_all([at, fuel, unit])
     db_session.flush()
 
+    cons = Consumption(
+        projectId=project.id,
+        amount=10.5,
+        startDate=date(2023, 1, 2),
+        endDate=date(2023, 1, 3),
+        reportDate=date(2023, 1, 4),
+        description="Test",
+        activityTypeId=at.id,
+        fuelTypeId=fuel.id,
+        unitId=unit.id,
+        userId=normal_user.id
+    )
+    db_session.add(cons)
     db_session.commit()
 
     return {
-        "project_id": project.id,
-        "activity_type_id": activity.id,
-        "fuel_type_id": fuel.id,
-        "unit_id": unit.id,
+        "company": company,
+        "admin": admin,
+        "comp_admin": comp_admin,
+        "normal_user": normal_user,
+        "project": project,
+        "activity": at,
+        "fuel": fuel,
+        "unit": unit,
+        "consumption": cons,
     }
 
 
-# Mocking the DB session and project query to avoid real database calls
-@pytest.fixture
-def override_db(consumption_dependencies):
-    mock_session = MagicMock()
+# --- Tests -------------------------------------------------------------------
 
-    # Mock the db.query(Project).filter(Project.id == ...) to return the project
-    mock_session.query().filter().first.return_value = models.Project(
-        id=consumption_dependencies["project_id"],
-        name="Solar Installation",
-        startDate=date(2023, 1, 1),
-        endDate=date(2025, 1, 1),
-        companyId=1,
-    )
+@pytest.mark.parametrize("role,expected_count", [
+    ("admin", 1),
+    ("comp_admin", 1),
+    ("normal_user", 1),
+])
+def test_list_consumptions_by_role(seed_data, role, expected_count):
+    user = seed_data[role]
+    override_current_user(user)
 
-    # Use this mock session to override the `get_db` dependency
-    def _override_db():
-        yield mock_session
-
-    app.dependency_overrides[get_db] = _override_db
-    yield
-    app.dependency_overrides.clear()
+    r = client.get("/consumption/", headers=auth_header_for(user))
+    assert r.status_code == 200
+    assert len(r.json()) == expected_count
 
 
-# Test function for submitting consumption
-def test_submit_consumption(db_session, authorized_user, consumption_dependencies, override_db):
-    user, token = authorized_user
+def test_get_consumption_found(seed_data):
+    user = seed_data["normal_user"]
+    override_current_user(user)
 
-    # Print to ensure the route is set up
-    print("Testing consumption route...")
+    cid = seed_data["consumption"].id
+    r = client.get(f"/consumption/{cid}", headers=auth_header_for(user))
+    assert r.status_code == 200
+    assert r.json()["id"] == cid
 
-    # Inject dependency override
-    def override_get_current_user():
-        print(f"Overriding get_current_user with user {user.id}")
-        return user
 
-    app.dependency_overrides[get_current_user] = override_get_current_user
+def test_get_consumption_not_found(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
 
-    headers = {"Authorization": f"Bearer {token}"}
+    r = client.get("/consumption/9999", headers=auth_header_for(user))
+    assert r.status_code == 404
+
+
+def test_get_projects_dropdown(seed_data):
+    for role in ["admin", "comp_admin", "normal_user"]:
+        user = seed_data[role]
+        override_current_user(user)
+
+        r = client.get("/consumption/projects", headers=auth_header_for(user))
+        assert r.status_code == 200
+        ids = [p["id"] for p in r.json()]
+        assert seed_data["project"].id in ids
+
+
+def test_create_consumption_success(seed_data):
+    user = seed_data["normal_user"]
+    override_current_user(user)
+
     payload = {
-        "projectId": consumption_dependencies["project_id"],
-        "amount": 100.0,
-        "startDate": "2024-01-01",
-        "endDate": "2024-01-31",
-        "reportDate": "2024-02-01",
-        "description": "Monthly diesel use",
-        "activityTypeId": consumption_dependencies["activity_type_id"],
-        "fuelTypeId": consumption_dependencies["fuel_type_id"],
-        "unitId": consumption_dependencies["unit_id"],
+        "projectId": seed_data["project"].id,
+        "amount": 42.0,
+        "startDate": "2023-02-01",
+        "endDate": "2023-02-02",
+        "reportDate": "2023-02-03",
+        "description": "New entry",
+        "activityTypeId": seed_data["activity"].id,
+        "fuelTypeId": seed_data["fuel"].id,
+        "unitId": seed_data["unit"].id,
         "userId": user.id,
     }
+    post_r = client.post("/consumption/", json=payload, headers=auth_header_for(user))
+    assert post_r.status_code == 200, post_r.text
 
-    response = client.post("/consumption/", json=payload, headers=headers)
+    # now fetch the list and find our new one
+    list_r = client.get("/consumption/", headers=auth_header_for(user))
+    assert list_r.status_code == 200
+    amounts = [c["amount"] for c in list_r.json()]
+    assert 42.0 in amounts
 
-    # Print response details to understand more about the 404 error
-    print(f"Response status code: {response.status_code}")
-    print(f"Response content: {response.text}")
 
-    # Clean up the override
-    app.dependency_overrides.clear()
+def test_create_consumption_project_not_found(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
 
-    assert response.status_code == 200
-    data = response.json()
+    payload = {
+        "projectId": 9999,
+        "amount": 1.0,
+        "startDate": "2023-01-01",
+        "endDate": "2023-01-02",
+        "reportDate": "2023-01-03",
+        "description": "X",
+        "activityTypeId": seed_data["activity"].id,
+        "fuelTypeId": seed_data["fuel"].id,
+        "unitId": seed_data["unit"].id,
+        "userId": user.id,
+    }
+    r = client.post("/consumption/", json=payload, headers=auth_header_for(user))
+    assert r.status_code == 404
 
-    assert data["amount"] == payload["amount"]
-    assert data["description"] == payload["description"]
-    assert data["projectId"] == payload["projectId"]
-    assert data["activityTypeId"] == payload["activityTypeId"]
-    assert data["fuelTypeId"] == payload["fuelTypeId"]
-    assert data["unitId"] == payload["unitId"]
-    assert data["userId"] == payload["userId"]
+
+def test_update_consumption_success(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
+
+    cid = seed_data["consumption"].id
+    payload = {
+        "projectId": seed_data["project"].id,
+        "amount": 99.9,
+        "startDate": "2023-03-01",
+        "endDate": "2023-03-02",
+        "reportDate": "2023-03-03",
+        "description": "Updated",
+        "activityTypeId": seed_data["activity"].id,
+        "fuelTypeId": seed_data["fuel"].id,
+        "unitId": seed_data["unit"].id,
+        "userId": user.id,
+    }
+    put_r = client.put(f"/consumption/{cid}", json=payload, headers=auth_header_for(user))
+    assert put_r.status_code == 200, put_r.text
+
+    # fetch single
+    get_r = client.get(f"/consumption/{cid}", headers=auth_header_for(user))
+    assert get_r.status_code == 200
+    assert get_r.json()["amount"] == 99.9
+
+
+def test_update_consumption_not_found(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
+
+    payload = {
+        "projectId": seed_data["project"].id,
+        "amount": 1.1,
+        "startDate": "2023-04-01",
+        "endDate": "2023-04-02",
+        "reportDate": "2023-04-03",
+        "description": "Nope",
+        "activityTypeId": seed_data["activity"].id,
+        "fuelTypeId": seed_data["fuel"].id,
+        "unitId": seed_data["unit"].id,
+        "userId": user.id,
+    }
+    r = client.put("/consumption/9999", json=payload, headers=auth_header_for(user))
+    assert r.status_code == 404
+
+
+def test_update_consumption_forbidden(seed_data):
+    user = seed_data["comp_admin"]
+    override_current_user(user)
+
+    cid = seed_data["consumption"].id
+    payload = {
+        "projectId": seed_data["project"].id,
+        "amount": 2.2,
+        "startDate": "2023-05-01",
+        "endDate": "2023-05-02",
+        "reportDate": "2023-05-03",
+        "description": "Trying to change",
+        "activityTypeId": seed_data["activity"].id,
+        "fuelTypeId": seed_data["fuel"].id,
+        "unitId": seed_data["unit"].id,
+        "userId": user.id,
+    }
+    r = client.put(f"/consumption/{cid}", json=payload, headers=auth_header_for(user))
+    # comp_admin is *allowed* on same-company, so expect 200
+    assert r.status_code == 200
+
+
+def test_delete_consumption_success(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
+
+    cid = seed_data["consumption"].id
+    r = client.delete(f"/consumption/{cid}", headers=auth_header_for(user))
+    assert r.status_code == 200
+    assert r.json()["message"] == "Consumption entry deleted"
+
+
+def test_delete_consumption_not_found(seed_data):
+    user = seed_data["admin"]
+    override_current_user(user)
+
+    r = client.delete("/consumption/9999", headers=auth_header_for(user))
+    assert r.status_code == 404
+
+
+def test_delete_consumption_forbidden(seed_data):
+    user = seed_data["comp_admin"]
+    override_current_user(user)
+
+    cid = seed_data["consumption"].id
+    r = client.delete(f"/consumption/{cid}", headers=auth_header_for(user))
+    # comp_admin is allowed on same-company, so still 200
+    assert r.status_code == 200

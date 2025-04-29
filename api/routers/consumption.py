@@ -132,7 +132,6 @@ def create_consumption(
     new_consumption = Consumption(**data.model_dump())
     db.add(new_consumption)
     db.commit()
-    db.refresh(new_consumption)
     return new_consumption
 
 
