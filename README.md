@@ -80,21 +80,22 @@ The React/TypeScript frontend includes unit and integration tests for components
 
 project-root/  
 │  
-├── api/               # Backend (FastAPI app, models, routers, tests)  
-│   ├── routers/       # API endpoint definitions  
-│   ├── schemas/       # Pydantic models  
-│   ├── utils/         # Email & logging helpers  
-│   └── tests/         # Pytest test suites  
+├── api/                      # Backend (FastAPI app, models, routers, tests)  
+│   ├── routers/              # API endpoint definitions  
+│   ├── schemas/              # Pydantic models  
+│   ├── utils/                # Email & logging helpers  
+│   └── tests/                # Pytest test suites  
 │  
-├── frontend/          # React + TypeScript app  
-│   ├── src/           # Components, hooks, pages, tests  
-│   └── public/        # Static assets  
+├── frontend/                 # React + TypeScript app  
+│   ├── src/                  # Components, hooks, pages, tests  
+│   └── public/               # Static assets  
 │  
 ├── docker-compose.yml  
-├── Dockerfile         # Backend container  
+├── Dockerfile                # Backend container  
 ├── frontend/Dockerfile  
 ├── README.md  
-└── documentation.md   # Extended technical docs & architecture  
+├── original_assignment.pdf   # PDF with the original assignment
+└── documentation.md          # Extended technical docs & architecture  
 
 ---
 
