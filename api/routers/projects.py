@@ -121,6 +121,10 @@ def update_project(
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Disallow regular users entirely
+    if user.role == "user":
+        raise HTTPException(status_code=403, detail="Not authorized")
 
     # Company admins can't edit projects outside their own company
     if user.role == "companyadmin" and project.companyId != user.companyId:
