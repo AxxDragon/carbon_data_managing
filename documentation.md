@@ -220,10 +220,16 @@ Backend tests are written with **pytest** and are located in `api/tests/`.
 
 - Uses `httpx.AsyncClient` for integration tests.
 - Includes a shared `conftest.py` for database mocking and dependency overrides.
-- Some CRUD routes still need tests (notably `projects.py`, `users.py`, and `invites.py`).
+- Utilizes `pytest-asyncio` to support asynchronous test functions.
+- Employs `pytest-mock` for creating and managing mocks within tests.
+- Implements `pytest-httpx` to mock external HTTP requests made via `httpx.AsyncClient`.
+- Leverages `pytest-cov` to measure and report code coverage.
 
-Test coverage is improving and structured by router, with fixtures and mock users used throughout.
+To run the tests, execute the following command in your terminal from the projects root:
 
+    pytest api/tests/
+
+This will discover and run all tests in the `api/tests/` directory.
 
 ---
 
@@ -279,8 +285,33 @@ Role-based access is implemented by checking the user’s role within the `AuthC
 
 ### 🧪 Testing
 
-Frontend tests are planned but not yet implemented. Testing will focus on key UI components, form validation, and API interaction. Future work includes setting up **Jest** and **React Testing Library** for component testing.
+Frontend tests are implemented using **Jest** and **React Testing Library**.
 
+- Focuses on key UI components, form validation, and API interactions.
+- Tests are located in the `src/__tests__/` directory and its subdirectories.
+- A shared utility file, `frontend/test_utils/testUtils.tsx`, provides common test helpers.
+- Utilizes `@testing-library/react` for rendering components and simulating user interactions.
+- Employs `@testing-library/jest-dom` for extended DOM assertions.
+
+**Running Frontend Tests**
+
+To run the frontend test suite:
+
+1. Ensure all dependencies are installed:
+
+   npm install
+
+2. Execute the tests with the following command:
+
+   npm test
+
+This command will launch Jest in watch mode, running all tests and re-running them upon file changes.
+
+For a single-run test execution without watch mode:
+
+    npm test -- --watchAll=false
+
+This setup ensures that frontend components are tested effectively, promoting robust and reliable user interfaces.
 
 ---
 
@@ -354,6 +385,9 @@ For version control, I used Git and GitHub. While I didn’t use branches, I com
 
 Ultimately, while the code may not be groundbreaking, the project demonstrates my ability to independently learn and apply modern technologies to solve a real-world problem. I was intentional about using industry-standard tools, not just because they were required or recommended by the assignment, but because their popularity ensures stability, community support, and relevance for future professional projects.
 
+Edit: 
+After submitting the initial version by the April 10th deadline, I dedicated approximately 16 additional hours to completing comprehensive backend and frontend test suites. This effort included implementing full coverage for critical routes, refining fixtures, and establishing reusable frontend test utilities. These enhancements were essential to ensure the application's robustness and maintainability. While there are always possible improvements that could be made, at this point the project is in a state that I am satisfyed with the result.
+
 
 ---
 
@@ -369,6 +403,6 @@ To keep the scope manageable, several features did not make it into the final ve
 - **More customization for list views**: Allowing users to sort, filter, or hide columns in tables like consumption or users would make the app more versatile.
 - **User-project assignment during invitation**: It would be more convenient if new users could be assigned to projects at the point of invitation, rather than only after registration.
 - **Completion of placeholder pages**: The app’s footer contains links to pages like Terms of Use and Imprint that haven’t been implemented yet.
-- **Finishing the backend test suite**: While some core features are tested, many edge cases and routes (especially on the frontend) still lack automated tests.
+- **Enhancing the test suites**: While some core features are tested, some edge cases and interactions still lack automated tests.
 
 These are all areas I’d be excited to continue improving if the project were extended or maintained. For now, I prioritized building a functional, clear MVP that shows my understanding of full-stack development — while acknowledging that refinement and polish are always part of the next step.

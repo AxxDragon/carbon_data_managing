@@ -19,13 +19,13 @@ CARMA helps companies track and manage their carbon-emission-producing resource 
 2. Install and run Docker Desktop  
 3. Run:
 
-    docker-compose up --build
+   docker-compose up --build
 
 ### Access
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)  
-- **Backend (FastAPI docs)**: [http://localhost:8000/docs](http://localhost:8000/docs)  
-- **MailHog UI**: [http://localhost:8025](http://localhost:8025)
+- **Frontend**: http://localhost:3000  
+- **Backend (FastAPI docs)**: http://localhost:8000/docs  
+- **MailHog UI**: http://localhost:8025
 
 ---
 
@@ -34,7 +34,7 @@ CARMA helps companies track and manage their carbon-emission-producing resource 
 - **Invite-only registration** with secure token-based sign-up  
 - **JWT-based authentication** with refresh tokens  
 - **Role-based access control** (Admin, Company Admin, User)  
-- **Consumption data tracking** with CRUD functionality  
+- **Consumption data tracking** with full CRUD  
 - **Data visualizations** via interactive graphs  
 - **Filtering and user-specific data views**  
 - **User, company, and project management** (Admin/Company Admin)  
@@ -42,63 +42,69 @@ CARMA helps companies track and manage their carbon-emission-producing resource 
 - **Responsive frontend** built with React + Bootstrap  
 - **Fully containerized** using Docker  
 - **Mail testing** with MailHog  
-- **Test coverage** using `pytest`  
-
----
-
-## 🛠️ Tech Stack
-
-**Backend**  
-- Python, FastAPI  
-- SQLAlchemy & SQLite  
-- JWT Auth (python-jose)  
-- Dockerized with Uvicorn  
-- Email handling for development via MailHog  
-
-**Frontend**  
-- React + TypeScript  
-- Zustand for state management  
-- React Query for server state  
-- Bootstrap for styling  
-- Recharts for data visualizations  
 
 ---
 
 ## 🧪 Testing
 
-Backend tests are written using `pytest` and cover key functionality like authentication, permissions, and core API routes. Additional tests are being added continuously.
+### Backend
 
-To run backend tests:
+We have comprehensive backend tests covering authentication, authorization, core CRUD endpoints, and utility functions:
 
-    pytest
+- Run all backend tests:
 
-(Or use your IDE’s testing UI — e.g., VSCode)
+  pytest
+
+- Test coverage report (optional):
+
+  pytest --cov=api --cov-report=html
+
+### Frontend
+
+The React/TypeScript frontend includes unit and integration tests for components, hooks, and API interactions:
+
+- Run frontend tests:
+
+  cd frontend  
+  npm test  
+  or  
+  yarn test
+
+- Watch mode (re-runs on file changes):
+
+  npm test -- --watchAll
 
 ---
 
 ## 📁 Project Structure
 
-project-root/
-│
-├── api/               # Backend (FastAPI, models, routes, tests)
-│   ├── tests/         # Pytest test files
-│   └── ...
-│
-├── frontend/          # React frontend
-│   └── ...
-│
-├── docker-compose.yml
-├── README.md
-└── documentation.md   # Extended technical docs (WIP)
+project-root/  
+│  
+├── api/               # Backend (FastAPI app, models, routers, tests)  
+│   ├── routers/       # API endpoint definitions  
+│   ├── schemas/       # Pydantic models  
+│   ├── utils/         # Email & logging helpers  
+│   └── tests/         # Pytest test suites  
+│  
+├── frontend/          # React + TypeScript app  
+│   ├── src/           # Components, hooks, pages, tests  
+│   └── public/        # Static assets  
+│  
+├── docker-compose.yml  
+├── Dockerfile         # Backend container  
+├── frontend/Dockerfile  
+├── README.md  
+└── documentation.md   # Extended technical docs & architecture  
 
+---
 
 ## 🔒 Roles & Permissions
 
-| Role              | Access Level                                                                     |
-|-------------------|----------------------------------------------------------------------------------|
-| **Admin**         | Full access to all data, user/project/company/option management                  |
-| **Company Admin** | Access limited to their company; can manage users and projects within it         |
-| **User**          | View-only access to their project consumption data; can manage their own entries |
+| Role              | Access Level                                                                                 |
+|-------------------|----------------------------------------------------------------------------------------------|
+| **Admin**         | Full access to all data and settings, including user/project/company/option management       |
+| **Company Admin** | Limited to their own company; can manage users and projects within it                        |
+| **User**          | View and manage their own consumption entries; read-only across other data of their projects |
 
 ---
 
@@ -110,4 +116,4 @@ This project is licensed under the [MIT License](https://choosealicense.com/lice
 
 ## 🤝 Credits
 
-Huge shoutout to [ChatGPT](https://openai.com/chatgpt) — most of the backend logic, frontend functionality and test files were created with AI assistance. The final product was crafted with care and refined manually through many iterative hours.
+Huge shout-out to ChatGPT — most of the backend logic, frontend functionality, and test files were bootstrapped with AI assistance. The final product was crafted with care and refined manually through many iterative hours.
