@@ -1,8 +1,9 @@
-# CARMA
+# CarMa
 
-**Carbon Emission Data Management Tool**
+**Carbon Emission Data  
+Management Tool**
 
-CARMA helps companies track and manage their carbon-emission-producing resource consumption. It offers a secure, role-based system for managing users, projects, and consumption data with powerful visualizations and granular access control.
+CarMa helps companies track and manage their carbon-emission-producing resource consumption. It offers a secure, role-based system for managing users, projects, and consumption data with powerful visualizations and granular access control.
 
 ---
 

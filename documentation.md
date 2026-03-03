@@ -1,4 +1,4 @@
-# CARMA Documentation
+# CarMa Documentation
 
 **Track and manage your company's carbon footprint effortlessly.**
 
@@ -20,7 +20,7 @@
 
 ## 1. Project Introduction
 
-CARMA (Carbon Management Application) is a full-stack web application that allows companies to track, manage, and analyze their carbon emissions data. Designed with usability and clarity in mind, it supports role-based access, data visualization, and project-level tracking of carbon consumption.
+CarMa (CARbon Emission Data MAnagement Tool) is a full-stack web application that allows companies to track, manage, and analyze their carbon emissions data. Designed with usability and clarity in mind, it supports role-based access, data visualization, and project-level tracking of carbon consumption.
 
 ### 🔑 Core Features
 - JWT-based authentication with three roles: Admin, Company Admin, and User
@@ -57,7 +57,7 @@ CARMA (Carbon Management Application) is a full-stack web application that allow
 
 ## 2. Setup Instructions
 
-This section explains how to get CARMA up and running both with and without Docker, including environment setup and dependencies.
+This section explains how to get CarMa up and running both with and without Docker, including environment setup and dependencies.
 
 ### 🔧 Prerequisites
 - Python 3.11+
@@ -126,7 +126,7 @@ This section explains how to get CARMA up and running both with and without Dock
 
 ### Part 3: Backend Overview
 
-The backend of CARMA is built with **FastAPI**, using **SQLAlchemy** for ORM and **SQLite** for local development. It's fully containerized with Docker and designed with clean, modular structure and clear separation of concerns.
+The backend of CarMa is built with **FastAPI**, using **SQLAlchemy** for ORM and **SQLite** for local development. It's fully containerized with Docker and designed with clean, modular structure and clear separation of concerns.
 
 ---
 
@@ -235,7 +235,7 @@ This will discover and run all tests in the `api/tests/` directory.
 
 ## 4. Frontend Overview
 
-The frontend of CARMA is built using **React** with **TypeScript**, utilizing **Bootstrap** for styling. It is structured to offer a clean, user-friendly interface, with components and pages that allow users to interact with the carbon management system efficiently.
+The frontend of CarMa is built using **React** with **TypeScript**, utilizing **Bootstrap** for styling. It is structured to offer a clean, user-friendly interface, with components and pages that allow users to interact with the carbon management system efficiently.
 
 ### 📁 Folder Structure
 
